@@ -1,0 +1,6 @@
+For deployment edit the docker-compose.yml file and replace all `.localhost`
+occourences with `.yourdomain.com`. This shall be automated with an ansible
+template.
+
+There are also a bunch of `TODO` where secrets are meant to be generated with
+something akin to `openssl rand -base64 64`.
