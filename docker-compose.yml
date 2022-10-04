@@ -137,3 +137,38 @@ services:
       - "traefik.http.routers.mattermost.middlewares=mattermost_compress"
     networks:
       - traefik
+
+  # TODO: remove
+  db1:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=sonarqube
+      - POSTGRES_PASSWORD=sonarqube
+      - POSTGRES_DB=sonarqube
+    networks:
+      - traefik
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    depends_on:
+      - db1
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db1:5432/sonarqube
+      SONAR_JDBC_USERNAME: sonarqube
+      SONAR_JDBC_PASSWORD: sonarqube
+    volumes:
+      - ./data/sonarqube/data:/opt/sonarqube/data
+      - ./data/sonarqube/extensions:/opt/sonarqube/extensions
+      - ./data/sonarqube/logs:/opt/sonarqube/logs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarqube.rule=Host(`qube.localhost`)"
+      - "traefik.http.routers.sonarqube.entrypoints=web-secure"
+      - "traefik.http.routers.sonarqube.tls.certresolver=default"
+      - "traefik.http.services.sonarqube.loadbalancer.server.port=9000"
+      - "traefik.http.middlewares.sonarqube_compress.compress=true"
+      - "traefik.http.routers.sonarqube.middlewares=sonarqube_compress"
+    networks:
+      - traefik
