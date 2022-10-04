@@ -23,6 +23,13 @@
     group: git
     name: git
     uid: 4000
+- name: Create the '/gitea' directory
+  ansible.builtin.file:
+    path: /gitea
+    state: directory
+    owner: git
+    group: git
+    mode: '0770'
 - name: Generate random password for gitea postgresql database
   ansible.builtin.set_fact:
     gitea_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
@@ -32,7 +39,7 @@
   community.postgresql.postgresql_user:
     name: gitea
     password: '{{ gitea_db_password }}'
--  name: Write Gitea DB password to a file
+- name: Write Gitea DB password to a file
    ansible.builtin.copy:
     content: "{{ gitea_db_password }}"
     dest: "/root/gitea_password.txt"

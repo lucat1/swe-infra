@@ -16,6 +16,13 @@
     group: mattermost
     name: mattermost
     uid: 2000
+- name: Create the '/mattermost' directory
+  ansible.builtin.file:
+    path: /mattermost
+    state: directory
+    owner: mattermost
+    group: mattermost
+    mode: '0770'
 - name: Generate random password for Mattermost postgresql database
   ansible.builtin.set_fact:
     mattermost_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"

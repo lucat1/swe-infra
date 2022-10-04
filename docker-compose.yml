@@ -38,7 +38,7 @@ services:
       - USER_GID=4000
     restart: unless-stopped
     volumes:
-      - ./data/gitea:/data
+      - /gitea:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
@@ -58,8 +58,10 @@ services:
     image: woodpeckerci/woodpecker-server
     container_name: woodpecker
     restart: unless-stopped
+    extra_hosts:
+      - "postgres:127.0.0.1"
     volumes:
-      - ./data/woodpecker:/var/lib/woodpecker/
+      - /woodpecker:/var/lib/woodpecker/
     environment:
       - WOODPECKER_OPEN=true
       - WOODPECKER_HOST=https://ci.localhost
@@ -68,6 +70,8 @@ services:
       - WOODPECKER_GITEA_CLIENT=TODO
       - WOODPECKER_GITEA_SECRET=TODO
       - WOODPECKER_AGENT_SECRET=TODO_SECRET
+      - WOODPECKER_DATABASE_DRIVER=postgres
+      - WOODPECKER_DATABASE_DATASOURCE=postgres://woodpecker:TODO@postgres:5432/woodpecker?sslmode=disable
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.woodpecker.rule=Host(`ci.localhost`)"
@@ -94,37 +98,25 @@ services:
     networks:
       - traefik     
 
-  # TODO: remove
-  db:
-    image: postgres
-    restart: always
-    environment:
-      - POSTGRES_USER=mattermost
-      - POSTGRES_PASSWORD=mattermost
-      - POSTGRES_DB=mattermost
-    networks:
-      - traefik
-
   mattermost:
-    # TODO: remove
-    depends_on:
-      - db
     image: mattermost/mattermost-team-edition
     container_name: mattermost
     restart: unless-stopped
+    extra_hosts:
+      - "postgres:127.0.0.1"
     tmpfs:
       - /tmp
     volumes:
-      - ./data/mattermost/config:/mattermost/config:rw
-      - ./data/mattermost/data:/mattermost/data:rw
-      - ./data/mattermost/logs:/mattermost/logs:rw
-      - ./data/mattermost/plugins:/mattermost/plugins:rw
-      - ./data/mattermost/client-plugins:/mattermost/client/plugins:rw
-      - ./data/mattermost/bleve-indexes:/mattermost/bleve-indexes:rw
+      - /mattermost/config:/mattermost/config:rw
+      - /mattermost/data:/mattermost/data:rw
+      - /mattermost/logs:/mattermost/logs:rw
+      - /mattermost/plugins:/mattermost/plugins:rw
+      - /mattermost/client-plugins:/mattermost/client/plugins:rw
+      - /mattermost/bleve-indexes:/mattermost/bleve-indexes:rw
     environment:
       - TZ=Europe/Rome
       - MM_SQLSETTINGS_DRIVERNAME=postgres
-      - MM_SQLSETTINGS_DATASOURCE=postgres://mattermost:mattermost@db:5432/mattermost?sslmode=disable&connect_timeout=10
+      - MM_SQLSETTINGS_DATASOURCE=postgres://mattermost:mattermost@postgres:5432/mattermost?sslmode=disable
       - MM_BLEVESETTINGS_INDEXDIR=/mattermost/bleve-indexes
       - MM_SERVICESETTINGS_SITEURL=https://chat.localhost
     labels:
