@@ -1,0 +1,57 @@
+version: "3.3"
+
+networks:
+  traefik:
+    name: traefik
+
+services:
+  traefik:
+    image: traefik
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - '--log.level=debug'
+      - '--api.insecure=false'
+      - '--pilot.dashboard=false'
+      - "--providers.docker=true"
+      - "--providers.docker.network=traefik"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=web-secure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web-secure.address=:443"
+      - "--entrypoints.web-secure.http3=true"
+      - "--experimental.http3=true"
+      - "--certificatesresolvers.default.acme.tlschallenge=true"
+      - "--certificatesresolvers.default.acme.email=TODOCHANGEME@gmail.com"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - traefik
+  gitea:
+    image: gitea/gitea
+    container_name: gitea
+    environment:
+      - USER_UID=4000
+      - USER_GID=4000
+    restart: unless-stopped
+    volumes:
+      - ./data/gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "222:22"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitea.rule=Host(`git.localhost`)"
+      - "traefik.http.routers.gitea.entrypoints=web-secure"
+      - "traefik.http.routers.gitea.tls.certresolver=default"
+      - "traefik.http.services.gitea.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.gitea_compress.compress=true"
+      - "traefik.http.routers.gitea.middlewares=gitea_compress"
+    networks:
+      - traefik     
