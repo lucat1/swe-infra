@@ -53,29 +53,46 @@ services:
       - "traefik.http.routers.gitea.middlewares=gitea_compress"
     networks:
       - traefik     
-  drone:
-    image: drone/drone:2
-    container_name: drone
+
+  woodpecker:
+    image: woodpeckerci/woodpecker-server
+    container_name: woodpecker
     restart: unless-stopped
     volumes:
-      - ./data/drone:/data
+      - ./data/woodpecker:/var/lib/woodpecker/
     environment:
-      - DRONE_GITEA_SERVER=http://git.localhost
-      - DRONE_GITEA_CLIENT_ID=TODO
-      - DRONE_GITEA_CLIENT_SECRET=TODO
-      - DRONE_RPC_SECRET=TODO
-      - DRONE_SERVER_HOST=ci.localhost
-      - DRONE_SERVER_PROTO=https
+      - WOODPECKER_OPEN=true
+      - WOODPECKER_HOST=https://ci.localhost
+      - WOODPECKER_GITEA=true
+      - WOODPECKER_GITEA_URL=https://git.localhost
+      - WOODPECKER_GITEA_CLIENT=TODO
+      - WOODPECKER_GITEA_SECRET=TODO
+      - WOODPECKER_AGENT_SECRET=TODO_SECRET
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.drone.rule=Host(`ci.localhost`)"
-      - "traefik.http.routers.drone.entrypoints=web-secure"
-      - "traefik.http.routers.drone.tls.certresolver=default"
-      - "traefik.http.services.drone.loadbalancer.server.port=80"
-      - "traefik.http.middlewares.drone_compress.compress=true"
-      - "traefik.http.routers.drone.middlewares=drone_compress"
+      - "traefik.http.routers.woodpecker.rule=Host(`ci.localhost`)"
+      - "traefik.http.routers.woodpecker.entrypoints=web-secure"
+      - "traefik.http.routers.woodpecker.tls.certresolver=default"
+      - "traefik.http.services.woodpecker.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.woodpecker_compress.compress=true"
+      - "traefik.http.routers.woodpecker.middlewares=woodpecker_compress"
     networks:
       - traefik
+
+  woodpecker-agent:
+    image: woodpeckerci/woodpecker-agent
+    container_name: woodpecker-agent
+    command: agent
+    restart: unless-stopped
+    depends_on:
+      - woodpecker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WOODPECKER_SERVER=woodpecker:9000
+      - WOODPECKER_AGENT_SECRET=TODO_SECRET
+    networks:
+      - traefik     
 
   # TODO: remove
   db:
