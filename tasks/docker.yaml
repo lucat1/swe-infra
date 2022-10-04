@@ -1,13 +1,18 @@
+- name: Install curl
+  ansible.builtin.package:
+    name:
+      - curl
+    state: latest
+    update_cache: yes
 - name: Add Docker repo
   block:
     - name: Download the Docker key
-      ansible.builtin.get_url:
-        url: https://download.docker.com/linux/debian/gpg
-        dest: /etc/apt/trusted.gpg.d/postgresql.asc
+      ansible.builtin.shell:
+        cmd: curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg
 
     - name: Add the Docker repository
       ansible.builtin.apt_repository:
-        repo: 'deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable'
+        repo: 'deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable'
         state: present
 
 - name: Install Docker

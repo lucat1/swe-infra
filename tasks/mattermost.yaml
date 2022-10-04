@@ -29,8 +29,8 @@
   community.postgresql.postgresql_db:
     name: mattermost
     encoding: UTF-8
-    lc_collate: en_US.UTF-8 # TODO check with locale -a
-    lc_ctype: en_US.UTF-8
+    lc_collate: en_GB.UTF-8 # TODO check with locale -a
+    lc_ctype: en_GB.UTF-8
     template: template0
 - name: Create the mattermost postgresql user
   become: yes
@@ -39,6 +39,8 @@
     name: mmuser
     password: '{{ mattermost_db_password }}'
 - name: GRANT ALL PRIVILEGES ON DATABASE mattermost TO mmuser
+  become: yes
+  become_user: postgres
   community.postgresql.postgresql_privs:
     db: postgres
     privs: ALL
@@ -47,14 +49,20 @@
     role: mmuser
 # FIXME
 - name: Modify the file pg_hba.conf to allow the Mattermost server to communicate with the database
-  ansible.builtin.lineinfile:
-    path: /var/lib/pgsql/14/data/pg_hba.conf
-    regexp: '^local   all             all                        peer'
-    line: 'local   all             all                        trust'
+  community.postgresql.postgresql_pg_hba:
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    contype: local
+    users: all
+    databases: all
+    method: trust
 - name: Modify the file pg_hba.conf to allow the Mattermost server to communicate with the database ::1/128
-    path: /var/lib/pgsql/14/data/pg_hba.conf
-    regexp: '^host    all             all         ::1/128        ident'
-    line: 'host    all             all         ::1/128        trust'
+  community.postgresql.postgresql_pg_hba:
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    contype: host
+    users: all
+    databases: all
+    method: trust
+    source: ::1/128
 - name: Restart postgresql
   ansible.builtin.service:
     name: postgresql

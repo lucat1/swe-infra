@@ -2,11 +2,11 @@
 - name: SWE
   hosts: all
   tasks:
-  - name: Setup postgresql
-    ansible.builtin.import_tasks: tasks/postgresql.yaml
-  - name: Setup Gitea
-    ansible.builtin.import_tasks: tasks/gitea.yaml
-  - name: Setup Mattermost
-    ansible.builtin.import_tasks: tasks/mattermost.yaml
+#  - name: Setup postgresql
+#    ansible.builtin.import_tasks: tasks/postgresql.yaml
+#  - name: Setup Gitea
+#    ansible.builtin.import_tasks: tasks/gitea.yaml
+#  - name: Setup Mattermost
+#    ansible.builtin.import_tasks: tasks/mattermost.yaml
   - name: Setup Docker
     ansible.builtin.import_tasks: tasks/docker.yaml
