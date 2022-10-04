@@ -30,67 +30,32 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       - traefik
-  gitea:
-    image: gitea/gitea
-    container_name: gitea
+  gitlab:
+    image: gitlab/gitlab-ee
+    container_name: gitlab
     environment:
-      - USER_UID=4000
-      - USER_GID=4000
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://git.localhost'
+        nginx['listen_https'] = false
+        nginx['listen_port'] = 80
+        nginx['redirect_http_to_https'] = false
+        letsencrypt['enable'] = false
     restart: unless-stopped
     volumes:
-      - ./data/gitea:/data
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
+      - ./data/gitlab/config:/etc/gitlab
+      - ./data/gitlab/log:/var/log/gitlab
+      - ./data/gitlab/data:/var/opt/gitlab
     ports:
       - "22:22"
+    shm_size: "256M"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.gitea.rule=Host(`git.localhost`)"
-      - "traefik.http.routers.gitea.entrypoints=web-secure"
-      - "traefik.http.routers.gitea.tls.certresolver=default"
-      - "traefik.http.services.gitea.loadbalancer.server.port=3000"
-      - "traefik.http.middlewares.gitea_compress.compress=true"
-      - "traefik.http.routers.gitea.middlewares=gitea_compress"
-    networks:
-      - traefik     
-
-  woodpecker:
-    image: woodpeckerci/woodpecker-server
-    container_name: woodpecker
-    restart: unless-stopped
-    volumes:
-      - ./data/woodpecker:/var/lib/woodpecker/
-    environment:
-      - WOODPECKER_OPEN=true
-      - WOODPECKER_HOST=https://ci.localhost
-      - WOODPECKER_GITEA=true
-      - WOODPECKER_GITEA_URL=https://git.localhost
-      - WOODPECKER_GITEA_CLIENT=TODO
-      - WOODPECKER_GITEA_SECRET=TODO
-      - WOODPECKER_AGENT_SECRET=TODO_SECRET
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.woodpecker.rule=Host(`ci.localhost`)"
-      - "traefik.http.routers.woodpecker.entrypoints=web-secure"
-      - "traefik.http.routers.woodpecker.tls.certresolver=default"
-      - "traefik.http.services.woodpecker.loadbalancer.server.port=8000"
-      - "traefik.http.middlewares.woodpecker_compress.compress=true"
-      - "traefik.http.routers.woodpecker.middlewares=woodpecker_compress"
-    networks:
-      - traefik
-
-  woodpecker-agent:
-    image: woodpeckerci/woodpecker-agent
-    container_name: woodpecker-agent
-    command: agent
-    restart: unless-stopped
-    depends_on:
-      - woodpecker
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - WOODPECKER_SERVER=woodpecker:9000
-      - WOODPECKER_AGENT_SECRET=TODO_SECRET
+      - "traefik.http.routers.gitlab.rule=Host(`git.localhost`)"
+      - "traefik.http.routers.gitlab.entrypoints=web-secure"
+      - "traefik.http.routers.gitlab.tls.certresolver=default"
+      - "traefik.http.services.gitlab.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.gitlab_compress.compress=true"
+      - "traefik.http.routers.gitlab.middlewares=gitlab_compress"
     networks:
       - traefik     
 
