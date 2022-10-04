@@ -137,3 +137,46 @@ services:
       - "traefik.http.routers.sonarqube.middlewares=sonarqube_compress"
     networks:
       - traefik
+
+
+  # GitLab runners with Docker-in-Docker setup
+  dind:
+    image: docker:20-dind
+    container_name: dind
+    restart: unless-stopped
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    command:
+      - --storage-driver=overlay2
+
+  runner:
+    image: registry.gitlab.com/gitlab-org/gitlab-runner:alpine
+    container_name: runner
+    restart: unless-stopped
+    depends_on:
+      - dind
+    environment:
+      - DOCKER_HOST=tcp://dind:2375
+    volumes:
+      - ./data/gitlab-runner:/etc/gitlab-runner
+
+  register-runner:
+    restart: "no"
+    image: registry.gitlab.com/gitlab-org/gitlab-runner:alpine
+    container_name: register-runner
+    depends_on:
+      - dind
+    environment:
+      - CI_SERVER_URL=https://git.localhost
+      - REGISTRATION_TOKEN=TODO
+    command:
+      - register
+      - --non-interactive
+      - --locked=false
+      - --name=runner-1
+      - --executor=docker
+      - --docker-image=docker:20-dind
+      - --docker-volumes=/var/run/docker.sock:/var/run/docker.sock
+    volumes:
+      - ./data/gitlab-runner:/etc/gitlab-runner
