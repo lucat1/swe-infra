@@ -1,0 +1,25 @@
+- name: Add PostgreSQL repo
+  block:
+    - name: Download the PostgreSQL key
+      ansible.builtin.get_url:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        dest: /etc/apt/trusted.gpg.d/postgresql.asc
+
+    - name: Add the PostgreSQL repository
+      ansible.builtin.apt_repository:
+        repo: 'deb [signed-by=/etc/apt/trusted.gpg.d/postgresql.asc] http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main'
+        state: present
+
+- name: Install PostgreSQL
+  ansible.builtin.package:
+    name:
+      - postgresql
+      - libpq5
+      - python3-psycopg2
+    state: latest
+    update_cache: yes
+- name: Restart and enable PostgreSQL
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted
+    enabled: yes

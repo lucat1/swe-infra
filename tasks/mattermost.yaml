@@ -1,0 +1,61 @@
+- name: Create a file for Mattermost DB password
+  ansible.builtin.file:
+    path: /root/mattermost_password.txt
+    state: touch
+    mode: '0700'
+    owner: root
+- name: Add the group 'mattermost'
+  ansible.builtin.group:
+    name: mattermost
+    system: yes
+    gid: 2000
+- name: Add the user 'mattermost'
+  ansible.builtin.user:
+    system: yes
+    shell: /usr/bin/nologin
+    group: mattermost
+    name: mattermost
+    uid: 2000
+- name: Generate random password for Mattermost postgresql database
+  ansible.builtin.set_fact:
+    mattermost_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
+-  name: Write Mattermost DB password to a file
+   ansible.builtin.copy:
+    content: "{{ mattermost_db_password }}"
+    dest: "/root/mattermost_password.txt"
+- name: Create the Mattermost postgresql database
+  become: yes
+  become_user: postgres
+  community.postgresql.postgresql_db:
+    name: mattermost
+    encoding: UTF-8
+    lc_collate: en_US.UTF-8 # TODO check with locale -a
+    lc_ctype: en_US.UTF-8
+    template: template0
+- name: Create the mattermost postgresql user
+  become: yes
+  become_user: postgres
+  community.postgresql.postgresql_user:
+    name: mmuser
+    password: '{{ mattermost_db_password }}'
+- name: GRANT ALL PRIVILEGES ON DATABASE mattermost TO mmuser
+  community.postgresql.postgresql_privs:
+    db: postgres
+    privs: ALL
+    type: database
+    obj: mattermost
+    role: mmuser
+# FIXME
+- name: Modify the file pg_hba.conf to allow the Mattermost server to communicate with the database
+  ansible.builtin.lineinfile:
+    path: /var/lib/pgsql/14/data/pg_hba.conf
+    regexp: '^local   all             all                        peer'
+    line: 'local   all             all                        trust'
+- name: Modify the file pg_hba.conf to allow the Mattermost server to communicate with the database ::1/128
+    path: /var/lib/pgsql/14/data/pg_hba.conf
+    regexp: '^host    all             all         ::1/128        ident'
+    line: 'host    all             all         ::1/128        trust'
+- name: Restart postgresql
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted

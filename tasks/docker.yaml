@@ -1,0 +1,41 @@
+- name: Add Docker repo
+  block:
+    - name: Download the Docker key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/debian/gpg
+        dest: /etc/apt/trusted.gpg.d/postgresql.asc
+
+    - name: Add the Docker repository
+      ansible.builtin.apt_repository:
+        repo: 'deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable'
+        state: present
+
+- name: Install Docker
+  ansible.builtin.package:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: latest
+    update_cache: yes
+- name: Copy Docker compose
+  ansible.builtin.template:
+    src: ../docker-compose.yml
+    dest: /root/docker-compose.yml
+    owner: root
+    mode: '0700'
+- name: Restart and enable Docker
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+    enabled: yes
+- name: Restart and enable Containerd
+  ansible.builtin.service:
+    name: containerd
+    state: restarted
+    enabled: yes
+- name: Execute Docker compose
+  ansible.builtin.shell:
+    cmd: docker compose up
+    chdir: /root/
