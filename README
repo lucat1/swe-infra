@@ -4,3 +4,9 @@ template.
 
 There are also a bunch of `TODO` where secrets are meant to be generated with
 something akin to `openssl rand -base64 64`.
+
+To get mattermost working with gitea SSO the hardcoded URLs for GitLab have to
+be slightly changed as follows:
+- "/oauth/authorize" -> "/login/oauth/authorize"
+- "/oauth/token" -> "/login/oauth/access_token"
+- "/api/v4" -> "/api/v1"
