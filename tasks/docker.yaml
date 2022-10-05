@@ -1,3 +1,6 @@
+- name: Set maxsockbuf for HTTP3
+  ansible.builtin.shell: |
+    sysctl -w kern.ipc.maxsockbuf=3014656
 - name: Add Docker repo
   block:
     - name: Download the Docker key
