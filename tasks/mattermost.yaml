@@ -67,3 +67,10 @@
   ansible.builtin.service:
     name: postgresql
     state: restarted
+- name: Create the '/mattermost' directory
+  ansible.builtin.file:
+    path: /mattermost
+    state: directory
+    owner: mattermost
+    group: mattermost
+    mode: '0770'

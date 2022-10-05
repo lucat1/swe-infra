@@ -24,9 +24,13 @@
       - docker-compose-plugin
     state: latest
     update_cache: yes
+- name: Read mattermost postgres password
+  slurp:
+    src: /root/mattermost_password.txt
+  register: mattermost_password
 - name: Copy Docker compose
   ansible.builtin.template:
-    src: ../docker-compose.yml
+    src: ../docker-compose.yml.j2
     dest: /root/docker-compose.yml
     owner: root
     mode: '0700'
