@@ -30,13 +30,25 @@
    - '/mattermost/plugins'
    - '/mattermost/client-plugins'
    - '/mattermost/belve-indexes'
-- name: Generate random password for Mattermost postgresql database
-  ansible.builtin.set_fact:
-    mattermost_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
--  name: Write Mattermost DB password to a file
-   ansible.builtin.copy:
-    content: "{{ mattermost_db_password }}"
-    dest: "/root/mattermost_password.txt"
+- name: Check if mattermost_password.txt exists
+  ansible.builtin.stat:
+    path: /root/mattermost_password.txt
+  register: mattermost_password_file
+- name: Generate password for Mattermost postgresql database
+  block:
+  - name: Generate random password for Mattermost postgresql database
+    ansible.builtin.set_fact:
+      mattermost_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
+  - name: Write Mattermost DB password to a file
+    ansible.builtin.copy:
+      content: "{{ mattermost_db_password }}"
+      dest: "/root/mattermost_password.txt"
+  when: not mattermost_password_file.stat.exists
+- name: Generate password for Sonarqube postgresql database
+  ansible.builtin.slurp:
+    src: /root/mattermost_password.txt
+  register: mattermost_db_password
+  when: mattermost_password_file.stat.exists
 - name: Create the Mattermost postgresql database
   become: yes
   become_user: postgres
@@ -61,26 +73,13 @@
     type: database
     obj: mattermost
     role: mmuser
-# FIXME
 - name: Modify the file pg_hba.conf to allow the Mattermost server to communicate with the database
-  community.postgresql.postgresql_pg_hba:
-    dest: /etc/postgresql/14/main/pg_hba.conf
-    contype: local
-    users: all
-    databases: all
-    method: trust
-- name: Modify the file pg_hba.conf to allow the Mattermost server to communicate with the database ::1/128
   community.postgresql.postgresql_pg_hba:
     dest: /etc/postgresql/14/main/pg_hba.conf
     contype: host
     users: all
     databases: all
     method: trust
-    source: ::1/128
-- name: Restart postgresql
-  ansible.builtin.service:
-    name: postgresql
-    state: restarted
 - name: Create the '/mattermost' directory
   ansible.builtin.file:
     path: /mattermost
@@ -88,3 +87,7 @@
     owner: mattermost
     group: mattermost
     mode: '0770'
+- name: Restart PostgresSQL
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted

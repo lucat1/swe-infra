@@ -1,17 +1,26 @@
-- name: Create a file for Sonarqube DB password
-  ansible.builtin.file:
+- name: Set max_map_count
+  ansible.builtin.shell: |
+    sysctl -w vm.max_map_count=262144
+- name: Check if sonarqube_password.txt exists
+  ansible.builtin.stat:
     path: /root/sonarqube_password.txt
-    state: touch
-    mode: '0700'
-    owner: root
-- name: Generate random password for Sonarqube postgresql database
-  ansible.builtin.set_fact:
-    sonarqube_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
--  name: Write Mattermost DB password to a file
-   ansible.builtin.copy:
-    content: "{{ sonarqube_db_password }}"
-    dest: "/root/sonarqube_password.txt"
-- name: Create the Mattermost postgresql database
+  register: sonarqube_password_file
+- name: Generate password for Sonarqube postgresql database
+  block:
+  - name: Generate random password for Sonarqube postgresql database
+    ansible.builtin.set_fact:
+      sonarqube_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
+  - name: Write Sonarqube DB password to a file
+    ansible.builtin.copy:
+      content: "{{ sonarqube_db_password }}"
+      dest: "/root/sonarqube_password.txt"
+  when: not sonarqube_password_file.stat.exists
+- name: Generate password for Sonarqube postgresql database
+  ansible.builtin.slurp:
+    src: /root/sonarqube_password.txt
+  register: sonarqube_db_password
+  when: sonarqube_password_file.stat.exists
+- name: Create the Sonarqube postgresql database
   become: yes
   become_user: postgres
   community.postgresql.postgresql_db:
@@ -35,24 +44,7 @@
     type: database
     obj: sonarqube
     role: squser
-# FIXME
-- name: Modify the file pg_hba.conf to allow the Mattermost server to communicate with the database
-  community.postgresql.postgresql_pg_hba:
-    dest: /etc/postgresql/14/main/pg_hba.conf
-    contype: local
-    users: all
-    databases: all
-    method: trust
-- name: Modify the file pg_hba.conf to allow the Mattermost server to communicate with the database ::1/128
-  community.postgresql.postgresql_pg_hba:
-    dest: /etc/postgresql/14/main/pg_hba.conf
-    contype: host
-    users: all
-    databases: all
-    method: trust
-    source: ::1/128
 - name: Restart postgresql
   ansible.builtin.service:
     name: postgresql
     state: restarted
-

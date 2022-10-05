@@ -1,13 +1,9 @@
-For deployment edit the docker-compose.yml file and replace all `.localhost`
-occourences with `.yourdomain.com`. This shall be automated with an ansible
-template.
-
-There are also a bunch of `TODO` where secrets are meant to be generated with
-something akin to `openssl rand -base64 64`.
-
-To setup the one GitLab runner you need to create a default configuration. This
-can be a viable starting point:
+To change the GitLab root password:
 ```
-concurrent = 8
-log_level = "warning"
+docker-compose exec gitlab bash
+gitlab-rake "gitlab:password:reset"
 ```
+then follow the on-screen instructions.
+
+Then:
+- Disable user registration (https://git.teapot.ovh/admin/application_settings/general) then "Sign-up restrictions"

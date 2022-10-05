@@ -2,6 +2,8 @@
 - name: SWE
   hosts: all
   tasks:
+  - name: Setup security
+    ansible.builtin.import_tasks: tasks/security.yaml
   - name: Setup postgresql
     ansible.builtin.import_tasks: tasks/postgresql.yaml
   - name: Setup Gitlab

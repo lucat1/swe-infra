@@ -18,11 +18,31 @@
 - name: Install PostgreSQL
   ansible.builtin.package:
     name:
-      - postgresql
+      - postgresql-14
       - libpq5
       - python3-psycopg2
     state: latest
     update_cache: yes
+
+- name: Restart and enable PostgreSQL
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted
+    enabled: yes
+
+- name: Make postgres listen on 0.0.0.0
+  ansible.builtin.lineinfile:
+    path: /etc/postgresql/14/main/postgresql.conf
+    line: "listen_addresses = '*'"
+- name: Modify the file pg_hba.conf to allow the Mattermost server to communicate with the database
+  community.postgresql.postgresql_pg_hba:
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    contype: host
+    users: all
+    databases: all
+    method: trust
+    source: 0.0.0.0/0
+
 - name: Restart and enable PostgreSQL
   ansible.builtin.service:
     name: postgresql

@@ -23,6 +23,7 @@ services:
       - "--experimental.http3=true"
       - "--certificatesresolvers.default.acme.tlschallenge=true"
       - "--certificatesresolvers.default.acme.email={{ domain_email }}"
+      - "--certificatesresolvers.default.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
     ports:
       - "80:80"
       - "443:443"
@@ -64,7 +65,7 @@ services:
     container_name: mattermost
     restart: unless-stopped
     extra_hosts:
-      - "postgres:127.0.0.1"
+      - "postgres:host-gateway"
     tmpfs:
       - /tmp
     volumes:
@@ -94,6 +95,8 @@ services:
   sonarqube:
     image: sonarqube:community
     container_name: sonarqube
+    extra_hosts:
+      - "postgres:host-gateway"
     environment:
       SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonarqube?sslmode=disable
       SONAR_JDBC_USERNAME: squser
@@ -115,43 +118,58 @@ services:
 
 
   # GitLab runners with Docker-in-Docker setup
-  dind:
-    image: docker:20-dind
-    container_name: dind
-    restart: unless-stopped
-    privileged: true
-    environment:
-      DOCKER_TLS_CERTDIR: ""
-    command:
-      - --storage-driver=overlay2
+  # dind:
+  #   image: docker:20-dind
+  #   container_name: dind
+  #   restart: unless-stopped
+  #   privileged: true
+  #   environment:
+  #     DOCKER_TLS_CERTDIR: ""
+  #   command:
+  #     - --storage-driver=overlay2
 
-  runner:
-    image: registry.gitlab.com/gitlab-org/gitlab-runner:alpine
-    container_name: runner
-    restart: unless-stopped
-    depends_on:
-      - dind
-    environment:
-      - DOCKER_HOST=tcp://dind:2375
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
     volumes:
-      - /gitlab-runner:/etc/gitlab-runner
+      - /jenkins:/var/jenkins/home
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jenkins.rule=Host(`ci.{{ domain }}`)"
+      - "traefik.http.routers.jenkins.entrypoints=web-secure"
+      - "traefik.http.routers.jenkins.tls.certresolver=default"
+      - "traefik.http.services.jenkins.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.jenkins_compress.compress=true"
+      - "traefik.http.routers.jenkins.middlewares=jenkins_compress"
+    networks:
+      - traefik
 
-  register-runner:
-    restart: "no"
-    image: registry.gitlab.com/gitlab-org/gitlab-runner:alpine
-    container_name: register-runner
-    depends_on:
-      - dind
-    environment:
-      - CI_SERVER_URL=https://git.{{ domain }}
-      - REGISTRATION_TOKEN=TODO
-    command:
-      - register
-      - --non-interactive
-      - --locked=false
-      - --name=runner-1
-      - --executor=docker
-      - --docker-image=docker:20-dind
-      - --docker-volumes=/var/run/docker.sock:/var/run/docker.sock
-    volumes:
-      - /gitlab-runner:/etc/gitlab-runner
+  # runner:
+  #   image: registry.gitlab.com/gitlab-org/gitlab-runner:alpine
+  #   container_name: runner
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - dind
+  #   environment:
+  #     - DOCKER_HOST=tcp://dind:2375
+  #   volumes:
+  #     - /gitlab-runner:/etc/gitlab-runner
+  # register-runner:
+  #   restart: "no"
+  #   image: registry.gitlab.com/gitlab-org/gitlab-runner:alpine
+  #   container_name: register-runner
+  #   depends_on:
+  #     - dind
+  #   environment:
+  #     - CI_SERVER_URL=https://git.{{ domain }}
+  #     - REGISTRATION_TOKEN=TODO
+  #   command:
+  #     - register
+  #     - --non-interactive
+  #     - --locked=false
+  #     - --name=runner-1
+  #     - --executor=docker
+  #     - --docker-image=docker:20-dind
+  #     - --docker-volumes=/var/run/docker.sock:/var/run/docker.sock
+  #   volumes:
+  #     - /gitlab-runner:/etc/gitlab-runner

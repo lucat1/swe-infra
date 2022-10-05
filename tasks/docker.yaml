@@ -1,21 +1,13 @@
-- name: Install curl and gnupg
-  ansible.builtin.package:
-    name:
-      - curl
-      - gnupg
-    state: latest
-    update_cache: yes
 - name: Add Docker repo
   block:
     - name: Download the Docker key
-      ansible.builtin.shell:
-        cmd: |
-          rm -f /etc/apt/trusted.gpg.d/docker.gpg
-          curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/debian/gpg
+        dest: /etc/apt/trusted.gpg.d/docker.asc
 
     - name: Add the Docker repository
       ansible.builtin.apt_repository:
-        repo: 'deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable'
+        repo: 'deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.asc] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable'
         state: present
 
 - name: Install Docker
@@ -29,11 +21,11 @@
     state: latest
     update_cache: yes
 - name: Read Mattermost postgres password
-  slurp:
+  ansible.builtin.slurp:
     src: /root/mattermost_password.txt
   register: mattermost_password
 - name: Read Sonarqube postgres password
-  slurp:
+  ansible.builtin.slurp:
     src: /root/sonarqube_password.txt
   register: sonarqube_password
 - name: Copy Docker compose
