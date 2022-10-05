@@ -1,14 +1,17 @@
-- name: Install curl
+- name: Install curl and gnupg
   ansible.builtin.package:
     name:
       - curl
+      - gnupg
     state: latest
     update_cache: yes
 - name: Add Docker repo
   block:
     - name: Download the Docker key
       ansible.builtin.shell:
-        cmd: curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg
+        cmd: |
+          rm -f /etc/apt/trusted.gpg.d/docker.gpg
+          curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg
 
     - name: Add the Docker repository
       ansible.builtin.apt_repository:
@@ -21,13 +24,18 @@
       - docker-ce
       - docker-ce-cli
       - containerd.io
-      - docker-compose-plugin
+      - docker-compose
+      - python3-docker
     state: latest
     update_cache: yes
-- name: Read mattermost postgres password
+- name: Read Mattermost postgres password
   slurp:
     src: /root/mattermost_password.txt
   register: mattermost_password
+- name: Read Sonarqube postgres password
+  slurp:
+    src: /root/sonarqube_password.txt
+  register: sonarqube_password
 - name: Copy Docker compose
   ansible.builtin.template:
     src: ../docker-compose.yml.j2
@@ -39,12 +47,16 @@
     name: docker
     state: restarted
     enabled: yes
-- name: Restart and enable Containerd
-  ansible.builtin.service:
-    name: containerd
-    state: restarted
-    enabled: yes
-- name: Execute Docker compose
-  ansible.builtin.shell:
-    cmd: docker compose up
-    chdir: /root/
+- name: Run `docker-compose down`
+  community.docker.docker_compose:
+    project_src: /root/
+    state: absent
+- name: Run `docker-compose up`
+  community.docker.docker_compose:
+    project_src: /root/
+    build: false
+  register: docker_compose_output
+
+- name: Print docker compose output
+  ansible.builtin.debug:
+    var: docker_compose_output

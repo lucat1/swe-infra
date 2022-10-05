@@ -1,0 +1,8 @@
+datacenter:
+  hosts:
+    adm-swe:
+      ansible_host: host
+      ansible_port: port
+      ansible_user: user
+      domain: example.com
+      domain_email: user@example.com

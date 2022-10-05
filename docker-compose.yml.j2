@@ -22,7 +22,7 @@ services:
       - "--entrypoints.web-secure.http3=true"
       - "--experimental.http3=true"
       - "--certificatesresolvers.default.acme.tlschallenge=true"
-      - "--certificatesresolvers.default.acme.email=TODOCHANGEME@gmail.com"
+      - "--certificatesresolvers.default.acme.email={{ domain_email }}"
     ports:
       - "80:80"
       - "443:443"
@@ -35,7 +35,7 @@ services:
     container_name: gitlab
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'https://git.localhost'
+        external_url 'https://git.{{ domain }}'
         nginx['listen_https'] = false
         nginx['listen_port'] = 80
         nginx['redirect_http_to_https'] = false
@@ -50,7 +50,7 @@ services:
     shm_size: "256M"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.gitlab.rule=Host(`git.localhost`)"
+      - "traefik.http.routers.gitlab.rule=Host(`git.{{ domain }}`)"
       - "traefik.http.routers.gitlab.entrypoints=web-secure"
       - "traefik.http.routers.gitlab.tls.certresolver=default"
       - "traefik.http.services.gitlab.loadbalancer.server.port=80"
@@ -77,12 +77,12 @@ services:
     environment:
       - TZ=Europe/Rome
       - MM_SQLSETTINGS_DRIVERNAME=postgres
-      - MM_SQLSETTINGS_DATASOURCE=postgres://mattermost:{{ mattermost_password }}@postgres:5432/mattermost?sslmode=disable
+      - MM_SQLSETTINGS_DATASOURCE=postgres://mmuser:{{ mattermost_password.content }}@postgres:5432/mattermost?sslmode=disable
       - MM_BLEVESETTINGS_INDEXDIR=/mattermost/bleve-indexes
-      - MM_SERVICESETTINGS_SITEURL=https://chat.localhost
+      - MM_SERVICESETTINGS_SITEURL=https://chat.{{ domain }}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.mattermost.rule=Host(`chat.localhost`)"
+      - "traefik.http.routers.mattermost.rule=Host(`chat.{{ domain }}`)"
       - "traefik.http.routers.mattermost.entrypoints=web-secure"
       - "traefik.http.routers.mattermost.tls.certresolver=default"
       - "traefik.http.services.mattermost.loadbalancer.server.port=8065"
@@ -94,19 +94,17 @@ services:
   sonarqube:
     image: sonarqube:community
     container_name: sonarqube
-    depends_on:
-      - db1
     environment:
-      SONAR_JDBC_URL: jdbc:postgresql://db1:5432/sonarqube
-      SONAR_JDBC_USERNAME: sonarqube
-      SONAR_JDBC_PASSWORD: sonarqube
+      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonarqube?sslmode=disable
+      SONAR_JDBC_USERNAME: squser
+      SONAR_JDBC_PASSWORD: {{ sonarqube_password.content }}
     volumes:
       - /sonarqube/data:/opt/sonarqube/data
       - /sonarqube/extensions:/opt/sonarqube/extensions
       - /sonarqube/logs:/opt/sonarqube/logs
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.sonarqube.rule=Host(`qube.localhost`)"
+      - "traefik.http.routers.sonarqube.rule=Host(`qube.{{ domain }}`)"
       - "traefik.http.routers.sonarqube.entrypoints=web-secure"
       - "traefik.http.routers.sonarqube.tls.certresolver=default"
       - "traefik.http.services.sonarqube.loadbalancer.server.port=9000"
@@ -145,7 +143,7 @@ services:
     depends_on:
       - dind
     environment:
-      - CI_SERVER_URL=https://git.localhost
+      - CI_SERVER_URL=https://git.{{ domain }}
       - REGISTRATION_TOKEN=TODO
     command:
       - register

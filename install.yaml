@@ -8,5 +8,7 @@
     ansible.builtin.import_tasks: tasks/gitlab.yaml
   - name: Setup Mattermost
     ansible.builtin.import_tasks: tasks/mattermost.yaml
+  - name: Setup Sonarqube
+    ansible.builtin.import_tasks: tasks/sonarqube.yaml
   - name: Setup Docker
     ansible.builtin.import_tasks: tasks/docker.yaml
