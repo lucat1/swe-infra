@@ -4,24 +4,12 @@
     state: touch
     mode: '0700'
     owner: root
-- name: Add the group 'mattermost'
-  ansible.builtin.group:
-    name: mattermost
-    system: yes
-    gid: 2000
-- name: Add the user 'mattermost'
-  ansible.builtin.user:
-    system: yes
-    shell: /usr/bin/nologin
-    group: mattermost
-    name: mattermost
-    uid: 2000
 - name: Create the '/mattermost' directories
   ansible.builtin.file:
     path: '{{item}}'
     state: directory
-    owner: mattermost
-    group: mattermost
+    owner: 2000
+    group: 2000
     mode: '0770'
   loop:
    - '/mattermost/config'
@@ -80,13 +68,6 @@
     users: all
     databases: all
     method: trust
-- name: Create the '/mattermost' directory
-  ansible.builtin.file:
-    path: /mattermost
-    state: directory
-    owner: mattermost
-    group: mattermost
-    mode: '0770'
 - name: Restart PostgresSQL
   ansible.builtin.service:
     name: postgresql

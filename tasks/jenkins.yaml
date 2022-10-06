@@ -1,0 +1,7 @@
+- name: Create the '/jenkins' directory
+  ansible.builtin.file:
+    path: /jenkins
+    state: directory
+    owner: 1000
+    group: 1000
+    mode: '0770'

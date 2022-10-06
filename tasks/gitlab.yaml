@@ -1,53 +1,21 @@
-# - name: Add the group 'git'
-#   ansible.builtin.group:
-#     name: git
-#     system: yes
-#     gid: 999
-- name: Add the group 'gitlab-www'
-  ansible.builtin.group:
-    name: gitlab-www
-    system: yes
-    gid: 998
-# - name: Add the user 'git'
-#   ansible.builtin.user:
-#     system: yes
-#     shell: /usr/bin/nologin
-#     group: git
-#     name: git
-#     uid: 999
-- name: Add the user 'gitlab-www'
-  ansible.builtin.user:
-    system: yes
-    shell: /usr/bin/nologin
-    group: gitlab-www
-    name: gitlab-www
-    uid: 998
 - name: Create the '/gitlab/config' directory
   ansible.builtin.file:
     path: /gitlab/config
     state: directory
-    owner: gitlab-www
-    group: gitlab-www
+    owner: 998
+    group: 998
     mode: '0770'
 - name: Create the '/gitlab/log' directory
   ansible.builtin.file:
     path: /gitlab/log
     state: directory
-    owner: gitlab-www
-    group: gitlab-www
+    owner: 998
+    group: 998
     mode: '0770'
 - name: Create the '/gitlab/data' directory
   ansible.builtin.file:
     path: /gitlab/data
     state: directory
-    # owner: git
-    # group: git
-    owner: gitlab-www
-    group: gitlab-www
+    owner: 999
+    group: 999
     mode: '0770'
-- name: Copy the gitlab runner config
-  ansible.builtin.template:
-    src: ../runner.toml.j2
-    dest: /gitlab-runner/config.toml
-    owner: root
-    mode: '0755'
