@@ -1,15 +1,10 @@
-- name: Create the '/taiga' directories
+- name: Create the '/taiga/media' directories
   ansible.builtin.file:
-    path: '{{item}}'
+    path: '/taiga/media'
     state: directory
-    owner: 2000
-    group: 2000
+    owner: 101
+    group: 101
     mode: '0770'
-  loop:
-   - '/taiga/static'
-   - '/taiga/media'
-   - '/taiga/async_rabbitmq'
-   - '/taiga/events_rabbitmq'
 
 - name: Check if taiga_password.txt exists
   ansible.builtin.stat:

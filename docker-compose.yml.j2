@@ -1,11 +1,13 @@
 version: "3.3"
 
 networks:
-  taiga:
   traefik:
 
 volumes:
   jenkins-docker-certs:
+  taiga-media:
+  taiga-async:
+  taiga-events:
 
 services:
   traefik:
@@ -84,7 +86,7 @@ services:
     environment:
       - TZ=Europe/Rome
       - MM_SQLSETTINGS_DRIVERNAME=postgres
-      - MM_SQLSETTINGS_DATASOURCE=postgres://mmuser:{{ mattermost_password.content }}@postgres:5432/mattermost?sslmode=disable
+      - MM_SQLSETTINGS_DATASOURCE=postgres://mmuser:{{ mattermost_password }}@postgres:5432/mattermost?sslmode=disable
       - MM_BLEVESETTINGS_INDEXDIR=/mattermost/bleve-indexes
       - MM_SERVICESETTINGS_SITEURL=https://chat.{{ domain }}
     labels:
@@ -106,7 +108,7 @@ services:
     environment:
       SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonarqube?sslmode=disable
       SONAR_JDBC_USERNAME: squser
-      SONAR_JDBC_PASSWORD: {{ sonarqube_password.content }}
+      SONAR_JDBC_PASSWORD: {{ sonarqube_password }}
     volumes:
       - /sonarqube/data:/opt/sonarqube/data
       - /sonarqube/extensions:/opt/sonarqube/extensions
@@ -165,20 +167,23 @@ services:
       - "postgres:host-gateway"
     volumes:
       - /taiga/static:/taiga-back/static
-      - /taiga/media:/taiga-back/media
+      - taiga-media:/taiga-back/media
     environment:
       - POSTGRES_DB=taiga
       - POSTGRES_USER=tuser
-      - POSTGRES_PASSWORD={{ taiga_password.content }}
+      - POSTGRES_PASSWORD={{ taiga_password }}
       - POSTGRES_HOST=postgres
-      - TAIGA_SECRET_KEY={{ taiga_secret.content }}
+      - TAIGA_SECRET_KEY={{ taiga_secret }}
       - TAIGA_SITES_DOMAIN=taiga.{{ domain }}
       - TAIGA_SITES_SCHEME=https
+      - RABBITMQ_USER=tuser
+      - RABBITMQ_PASS={{ taiga_password }}
+      - ENABLE_TELEMETRY="False"
     depends_on:
       - taiga_events_rabbitmq
       - taiga_async_rabbitmq
     networks:
-      - taiga
+      - traefik
 
   taiga_async:
     extra_hosts:
@@ -189,44 +194,47 @@ services:
     restart: unless-stopped
     volumes:
       - /taiga/static:/taiga-back/static
-      - /taiga/media:/taiga-back/media
+      - taiga-media:/taiga-back/media
     environment:
       - POSTGRES_DB=taiga
       - POSTGRES_USER=tuser
-      - POSTGRES_PASSWORD={{ taiga_password.content }}
+      - POSTGRES_PASSWORD={{ taiga_password }}
       - POSTGRES_HOST=postgres
-      - TAIGA_SECRET_KEY={{ taiga_secret.content }}
+      - TAIGA_SECRET_KEY={{ taiga_secret }}
       - TAIGA_SITES_DOMAIN=taiga.{{ domain }}
       - TAIGA_SITES_SCHEME=https
+      - RABBITMQ_USER=tuser
+      - RABBITMQ_PASS={{ taiga_password }}
+      - ENABLE_TELEMETRY="False"
     depends_on:
       - taiga_back
       - taiga_async_rabbitmq
     networks:
-      - taiga
+      - traefik
 
   taiga_async_rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:3.8-management-alpine
     container_name: taiga_async_rabbitmq
     restart: unless-stopped
     volumes:
       - /taiga/async_rabbitmq:/var/lib/rabbitmq
     environment:
-      RABBITMQ_ERLANG_COOKIE: {{ taiga_secret.content }}
-      RABBITMQ_DEFAULT_USER: tuser
-      RABBITMQ_DEFAULT_PASS: {{ taiga_password.content }}
-      RABBITMQ_DEFAULT_VHOST: taiga
+      - RABBITMQ_ERLANG_COOKIE={{ taiga_secret }}
+      - RABBITMQ_DEFAULT_USER=tuser
+      - RABBITMQ_DEFAULT_PASS={{ taiga_password }}
+      - RABBITMQ_DEFAULT_VHOST=taiga
     networks:
-      - taiga
+      - traefik
 
   taiga_front:
-    image: taigaio/taiga-front
+    image: taigaio/taiga-front:latest
     container_name: taiga_front
     restart: unless-stopped
     environment:
       - TAIGA_URL=https://taiga.{{ domain }}
-      - TAIGA_WEBSOCKETS_URL=ws://taiga.{{ domain }}
+      - TAIGA_WEBSOCKETS_URL=wss://taiga.{{ domain }}
     networks:
-      - taiga
+      - traefik
 
   taiga_events:
     image: taigaio/taiga-events:latest
@@ -234,26 +242,26 @@ services:
     restart: unless-stopped
     environment:
       - RABBITMQ_USER=tuser
-      - RABBITMQ_PASS={{ taiga_password.content }}
-      - TAIGA_SECRET_KEY={{ taiga_secret.content }}
+      - RABBITMQ_PASS={{ taiga_password }}
+      - TAIGA_SECRET_KEY={{ taiga_secret }}
     depends_on:
       - taiga_events_rabbitmq
     networks:
-      - taiga
+      - traefik
 
   taiga_events_rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:3.8-management-alpine
     container_name: taiga_events_rabbitmq
     restart: unless-stopped
     volumes:
-      - /taiga/events_rabbitmq:/var/lib/rabbitmq
+      - taiga-events:/var/lib/rabbitmq
     environment:
-      RABBITMQ_ERLANG_COOKIE: {{ taiga_secret.content }}
+      RABBITMQ_ERLANG_COOKIE: {{ taiga_secret }}
       RABBITMQ_DEFAULT_USER: tuser
-      RABBITMQ_DEFAULT_PASS: {{ taiga_password.content }}
+      RABBITMQ_DEFAULT_PASS: {{ taiga_password }}
       RABBITMQ_DEFAULT_VHOST: taiga
     networks:
-      - taiga
+      - traefik
 
   taiga_protected:
     image: taigaio/taiga-protected:latest
@@ -261,9 +269,9 @@ services:
     restart: unless-stopped
     environment:
       - MAX_AGE=360
-      - SECRET_KEY={{ taiga_secret.content }}
+      - SECRET_KEY={{ taiga_secret }}
     networks:
-      - taiga
+      - traefik
 
   taiga_gateway:
     image: nginx:1.19-alpine
@@ -272,13 +280,14 @@ services:
     volumes:
       - ./taiga-nginx.conf:/etc/nginx/conf.d/default.conf
       - /taiga/static:/taiga/static
-      - /taiga/media:/taiga/media
+      - taiga-media:/taiga/media
     depends_on:
       - taiga_front
       - taiga_back
       - taiga_events
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
       - "traefik.http.routers.taiga.rule=Host(`taiga.{{ domain }}`)"
       - "traefik.http.routers.taiga.entrypoints=web-secure"
       - "traefik.http.routers.taiga.tls.certresolver=default"
@@ -286,5 +295,4 @@ services:
       - "traefik.http.middlewares.taiga_compress.compress=true"
       - "traefik.http.routers.taiga.middlewares=taiga_compress"
     networks:
-      - taiga
       - traefik

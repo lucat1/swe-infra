@@ -26,28 +26,44 @@
     update_cache: yes
 
 - name: Read Mattermost postgres password
-  ansible.builtin.slurp:
-    src: /root/mattermost_password.txt
-  register: mattermost_password
+  block:
+  - name: Read the file
+    ansible.builtin.slurp:
+      src: /root/mattermost_password.txt
+    register: mattermost_password_base
+  - name: Decode the variable
+    set_fact:
+      mattermost_password: "{{ mattermost_password_base.content | b64decode }}"
 
 - name: Read Sonarqube postgres password
-  ansible.builtin.slurp:
-    src: /root/sonarqube_password.txt
-  register: sonarqube_password
-
-- name: Print mattermost password
-  ansible.builtin.debug:
-    var: mattermost_password
+  block:
+  - name: Read the file
+    ansible.builtin.slurp:
+      src: /root/sonarqube_password.txt
+    register: sonarqube_password_base
+  - name: Decode the variable
+    set_fact:
+      sonarqube_password: "{{ sonarqube_password_base.content | b64decode }}"
 
 - name: Read Taiga postgres password
-  ansible.builtin.slurp:
-    src: /root/taiga_password.txt
-  register: taiga_password
+  block:
+  - name: Read the file
+    ansible.builtin.slurp:
+      src: /root/taiga_password.txt
+    register: taiga_password_base
+  - name: Decode the variable
+    set_fact:
+      taiga_password: "{{ taiga_password_base.content | b64decode }}"
 
 - name: Read Taiga secret
-  ansible.builtin.slurp:
-    src: /root/taiga_secret.txt
-  register: taiga_secret
+  block:
+  - name: Read the file
+    ansible.builtin.slurp:
+      src: /root/taiga_secret.txt
+    register: taiga_secret_base
+  - name: Decode the variable
+    set_fact:
+      taiga_secret: "{{ taiga_secret_base.content | b64decode }}"
 
 - name: Copy Docker compose
   ansible.builtin.template:

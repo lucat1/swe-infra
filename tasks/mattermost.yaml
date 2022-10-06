@@ -46,10 +46,6 @@
         mattermost_db_password: "{{ mattermost_db_password_base.content | b64decode }}"
   when: mattermost_password_file.stat.exists
 
-- name: Print docker compose output
-  ansible.builtin.debug:
-    var: mattermost_db_password
-
 - name: Create the Mattermost postgresql database
   become: yes
   become_user: postgres

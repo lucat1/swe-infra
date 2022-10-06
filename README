@@ -27,3 +27,6 @@ Then:
 - Disable non-SSO login in Mattermost
   - System console > Email > Enable sign-in with email: false
   - System console > Email > Enable sign-in with username: false
+- Change taiga's admin password
+  - `docker-compose exec -e POSTGRES_DB=taiga -e POSTGRES_USER=tuser -e POSTGRES_PASSWORD=$(cat taiga_password.txt) -e POSTGRES_HOST=postgres taiga_back bash`
+  - `python manage.py`

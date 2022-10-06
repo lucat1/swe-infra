@@ -44,7 +44,7 @@
     contype: host
     users: all
     databases: all
-    method: scram-sha-256
+    method: password
     source: 0.0.0.0/0
 
 - name: Restart and enable PostgreSQL
