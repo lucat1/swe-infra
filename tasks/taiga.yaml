@@ -1,15 +1,3 @@
-- name: Create a file for the Taiga DB password
-  ansible.builtin.file:
-    path: /root/taiga_password.txt
-    state: touch
-    mode: '0700'
-    owner: root
-- name: Create a file for the Taiga secret
-  ansible.builtin.file:
-    path: /root/taiga_secret.txt
-    state: touch
-    mode: '0700'
-    owner: root
 - name: Create the '/taiga' directories
   ansible.builtin.file:
     path: '{{item}}'
@@ -20,8 +8,8 @@
   loop:
    - '/taiga/static'
    - '/taiga/media'
-   - '/taiga/async'
-   - '/taiga/events'
+   - '/taiga/async_rabbitmq'
+   - '/taiga/events_rabbitmq'
 - name: Check if taiga_password.txt exists
   ansible.builtin.stat:
     path: /root/taiga_password.txt
@@ -31,12 +19,18 @@
   - name: Generate random password for Taiga postgresql database
     ansible.builtin.set_fact:
       taiga_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
+  - name: Create a file for the Taiga DB password
+    ansible.builtin.file:
+      path: /root/taiga_password.txt
+      state: touch
+      mode: '0700'
+      owner: root
   - name: Write Taiga DB password to a file
     ansible.builtin.copy:
       content: "{{ taiga_db_password }}"
-      dest: "/root/taiga_password.txt"
+      dest: /root/taiga_password.txt
   when: not taiga_password_file.stat.exists
-- name: Generate password for Taiga postgresql database
+- name: Read Taiga postgresql password
   ansible.builtin.slurp:
     src: /root/taiga_password.txt
   register: taiga_db_password
@@ -50,10 +44,16 @@
   - name: Generate random secret for Taiga
     ansible.builtin.set_fact:
       taiga_secret: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
+  - name: Create a file for the Taiga secret
+    ansible.builtin.file:
+      path: /root/taiga_secret.txt
+      state: touch
+      mode: '0700'
+      owner: root
   - name: Write Taiga secret to a file
     ansible.builtin.copy:
       content: "{{ taiga_secret }}"
-      dest: "/root/taiga_secret.txt"
+      dest: /root/taiga_secret.txt
   when: not taiga_secret_file.stat.exists
 - name: Create the Taiga postgresql database
   become: yes
@@ -83,3 +83,9 @@
   ansible.builtin.service:
     name: postgresql
     state: restarted
+- name: Copy taiga-nginx.conf
+  ansible.builtin.template:
+    src: ../taiga-nginx.conf
+    dest: /root/taiga-nginx.conf
+    owner: root
+    mode: '0700'

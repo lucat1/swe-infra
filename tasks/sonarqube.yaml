@@ -10,10 +10,16 @@
   - name: Generate random password for Sonarqube postgresql database
     ansible.builtin.set_fact:
       sonarqube_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
+  - name: Create a file for Sonarqube DB password
+    ansible.builtin.file:
+      path: /root/sonarqube.txt
+      state: touch
+      mode: '0700'
+      owner: root
   - name: Write Sonarqube DB password to a file
     ansible.builtin.copy:
       content: "{{ sonarqube_db_password }}"
-      dest: "/root/sonarqube_password.txt"
+      dest: /root/sonarqube_password.txt
   when: not sonarqube_password_file.stat.exists
 - name: Generate password for Sonarqube postgresql database
   ansible.builtin.slurp:

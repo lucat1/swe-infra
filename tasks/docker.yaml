@@ -38,7 +38,7 @@
 - name: Read Taiga secret
   ansible.builtin.slurp:
     src: /root/taiga_secret.txt
-  register: taiga_password
+  register: taiga_secret
 - name: Copy Docker compose
   ansible.builtin.template:
     src: ../docker-compose.yml.j2

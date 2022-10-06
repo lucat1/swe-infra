@@ -1,9 +1,3 @@
-- name: Create a file for Mattermost DB password
-  ansible.builtin.file:
-    path: /root/mattermost_password.txt
-    state: touch
-    mode: '0700'
-    owner: root
 - name: Create the '/mattermost' directories
   ansible.builtin.file:
     path: '{{item}}'
@@ -27,10 +21,16 @@
   - name: Generate random password for Mattermost postgresql database
     ansible.builtin.set_fact:
       mattermost_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
+  - name: Create a file for Mattermost DB password
+    ansible.builtin.file:
+      path: /root/mattermost_password.txt
+      state: touch
+      mode: '0700'
+      owner: root
   - name: Write Mattermost DB password to a file
     ansible.builtin.copy:
       content: "{{ mattermost_db_password }}"
-      dest: "/root/mattermost_password.txt"
+      dest: /root/mattermost_password.txt
   when: not mattermost_password_file.stat.exists
 - name: Generate password for Mattermost postgresql database
   ansible.builtin.slurp:

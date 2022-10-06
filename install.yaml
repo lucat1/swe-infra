@@ -14,5 +14,7 @@
     ansible.builtin.import_tasks: tasks/mattermost.yaml
   - name: Setup Sonarqube
     ansible.builtin.import_tasks: tasks/sonarqube.yaml
+  - name: Setup Taiga
+    ansible.builtin.import_tasks: tasks/taiga.yaml
   - name: Setup Docker
     ansible.builtin.import_tasks: tasks/docker.yaml
