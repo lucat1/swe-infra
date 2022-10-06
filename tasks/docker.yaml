@@ -1,6 +1,7 @@
 - name: Set rmem_max for HTTP3
   ansible.builtin.shell: |
     sysctl -w net.core.rmem_max=2500000
+
 - name: Add Docker repo
   block:
     - name: Download the Docker key
@@ -23,28 +24,38 @@
       - python3-docker
     state: latest
     update_cache: yes
+
 - name: Read Mattermost postgres password
   ansible.builtin.slurp:
     src: /root/mattermost_password.txt
   register: mattermost_password
+
 - name: Read Sonarqube postgres password
   ansible.builtin.slurp:
     src: /root/sonarqube_password.txt
   register: sonarqube_password
+
+- name: Print mattermost password
+  ansible.builtin.debug:
+    var: mattermost_password
+
 - name: Read Taiga postgres password
   ansible.builtin.slurp:
     src: /root/taiga_password.txt
   register: taiga_password
+
 - name: Read Taiga secret
   ansible.builtin.slurp:
     src: /root/taiga_secret.txt
   register: taiga_secret
+
 - name: Copy Docker compose
   ansible.builtin.template:
     src: ../docker-compose.yml.j2
     dest: /root/docker-compose.yml
     owner: root
     mode: '0700'
+
 - name: Restart and enable Docker
   ansible.builtin.service:
     name: docker

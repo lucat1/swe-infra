@@ -1,11 +1,13 @@
 - name: Set max_map_count
   ansible.builtin.shell: |
     sysctl -w vm.max_map_count=262144
+
 - name: Check if sonarqube_password.txt exists
   ansible.builtin.stat:
     path: /root/sonarqube_password.txt
   register: sonarqube_password_file
-- name: Generate password for Sonarqube postgresql database
+
+- name: Generate the password for the Sonarqube postgresql database
   block:
   - name: Generate random password for Sonarqube postgresql database
     ansible.builtin.set_fact:
@@ -21,11 +23,18 @@
       content: "{{ sonarqube_db_password }}"
       dest: /root/sonarqube_password.txt
   when: not sonarqube_password_file.stat.exists
-- name: Generate password for Sonarqube postgresql database
-  ansible.builtin.slurp:
-    src: /root/sonarqube_password.txt
-  register: sonarqube_db_password
+
+- name: Read the password for the Sonarqube postgresql database
+  block:
+  - name: Read the file
+    ansible.builtin.slurp:
+      src: /root/sonarqube_password.txt
+    register: sonarqube_db_password_base
+  - name: Decode the variable
+    set_fact:
+      sonarqube_db_password: "{{ sonarqube_db_password_base.content | b64decode }}"
   when: sonarqube_password_file.stat.exists
+
 - name: Create the Sonarqube postgresql database
   become: yes
   become_user: postgres
@@ -35,12 +44,14 @@
     lc_collate: en_US.UTF-8 # TODO check with locale -a
     lc_ctype: en_US.UTF-8
     template: template0
+
 - name: Create the sonarqube postgresql user
   become: yes
   become_user: postgres
   community.postgresql.postgresql_user:
     name: squser
     password: '{{ sonarqube_db_password }}'
+
 - name: GRANT ALL PRIVILEGES ON DATABASE sonarqube TO squser
   become: yes
   become_user: postgres
@@ -50,6 +61,7 @@
     type: database
     obj: sonarqube
     role: squser
+
 - name: Restart postgresql
   ansible.builtin.service:
     name: postgresql

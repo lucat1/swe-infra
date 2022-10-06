@@ -12,11 +12,13 @@
    - '/mattermost/plugins'
    - '/mattermost/client-plugins'
    - '/mattermost/belve-indexes'
+
 - name: Check if mattermost_password.txt exists
   ansible.builtin.stat:
     path: /root/mattermost_password.txt
   register: mattermost_password_file
-- name: Generate password for Mattermost postgresql database
+
+- name: Generate the password for the Mattermost postgresql database
   block:
   - name: Generate random password for Mattermost postgresql database
     ansible.builtin.set_fact:
@@ -32,11 +34,22 @@
       content: "{{ mattermost_db_password }}"
       dest: /root/mattermost_password.txt
   when: not mattermost_password_file.stat.exists
-- name: Generate password for Mattermost postgresql database
-  ansible.builtin.slurp:
-    src: /root/mattermost_password.txt
-  register: mattermost_db_password
+
+- name: Read the password for the Mattermost postgresql database
+  block:
+    - name: Read the file
+      ansible.builtin.slurp:
+        src: /root/mattermost_password.txt
+      register: mattermost_db_password_base
+    - name: Decode the variable
+      set_fact:
+        mattermost_db_password: "{{ mattermost_db_password_base.content | b64decode }}"
   when: mattermost_password_file.stat.exists
+
+- name: Print docker compose output
+  ansible.builtin.debug:
+    var: mattermost_db_password
+
 - name: Create the Mattermost postgresql database
   become: yes
   become_user: postgres
@@ -46,12 +59,14 @@
     lc_collate: en_US.UTF-8 # TODO check with locale -a
     lc_ctype: en_US.UTF-8
     template: template0
+
 - name: Create the mattermost postgresql user
   become: yes
   become_user: postgres
   community.postgresql.postgresql_user:
     name: mmuser
     password: '{{ mattermost_db_password }}'
+
 - name: GRANT ALL PRIVILEGES ON DATABASE mattermost TO mmuser
   become: yes
   become_user: postgres
@@ -61,6 +76,7 @@
     type: database
     obj: mattermost
     role: mmuser
+
 - name: Restart PostgresSQL
   ansible.builtin.service:
     name: postgresql

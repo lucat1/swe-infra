@@ -10,11 +10,13 @@
    - '/taiga/media'
    - '/taiga/async_rabbitmq'
    - '/taiga/events_rabbitmq'
+
 - name: Check if taiga_password.txt exists
   ansible.builtin.stat:
     path: /root/taiga_password.txt
   register: taiga_password_file
-- name: Generate password for Taiga postgresql database
+
+- name: Generate the password for the Taiga postgresql database
   block:
   - name: Generate random password for Taiga postgresql database
     ansible.builtin.set_fact:
@@ -30,15 +32,23 @@
       content: "{{ taiga_db_password }}"
       dest: /root/taiga_password.txt
   when: not taiga_password_file.stat.exists
-- name: Read Taiga postgresql password
-  ansible.builtin.slurp:
-    src: /root/taiga_password.txt
-  register: taiga_db_password
+
+- name: Read the Taiga postgresql password
+  block:
+    - name: Read the file
+      ansible.builtin.slurp:
+        src: /root/taiga_password.txt
+      register: taiga_db_password_base
+    - name: Decode the variable
+      set_fact:
+        taiga_db_password: "{{ taiga_db_password_base.content | b64decode }}"
   when: taiga_password_file.stat.exists
+
 - name: Check if taiga_secret.txt exists
   ansible.builtin.stat:
     path: /root/taiga_secret.txt
   register: taiga_secret_file
+
 - name: Generate secret for Taiga
   block:
   - name: Generate random secret for Taiga
@@ -55,6 +65,7 @@
       content: "{{ taiga_secret }}"
       dest: /root/taiga_secret.txt
   when: not taiga_secret_file.stat.exists
+
 - name: Create the Taiga postgresql database
   become: yes
   become_user: postgres
@@ -64,12 +75,14 @@
     lc_collate: en_US.UTF-8 # TODO check with locale -a
     lc_ctype: en_US.UTF-8
     template: template0
+
 - name: Create the taiga postgresql user
   become: yes
   become_user: postgres
   community.postgresql.postgresql_user:
     name: tuser
     password: '{{ taiga_db_password }}'
+
 - name: GRANT ALL PRIVILEGES ON DATABASE taiga TO tuser
   become: yes
   become_user: postgres
@@ -79,10 +92,12 @@
     type: database
     obj: taiga
     role: tuser
+
 - name: Restart PostgresSQL
   ansible.builtin.service:
     name: postgresql
     state: restarted
+
 - name: Copy taiga-nginx.conf
   ansible.builtin.template:
     src: ../taiga-nginx.conf
