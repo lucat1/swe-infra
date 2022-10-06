@@ -7,3 +7,17 @@ then follow the on-screen instructions.
 
 Then:
 - Disable user registration (https://git.teapot.ovh/admin/application_settings/general) then "Sign-up restrictions"
+- Set SonarQube Base URL (Configuration -> Base URL)
+- Enble SonarQube SSO with GitLab (https://docs.sonarqube.org/latest/analysis/gitlab-integration/)
+- Enble SonarQube-GitLab integration (https://docs.sonarqube.org/latest/analysis/gitlab-integration/)
+- Enable the GitLab-Jenkins integration (https://docs.gitlab.com/ee/integration/jenkins.html)
+- In Jenkins install the following plugins
+  - gitlab-plugin: GitLab plugin for Jenkins - version 1.5.13 or later 
+  - gitlab-oauth: GitLab Oauth for Jenkins (requires config for SSO, https://github.com/jenkinsci/gitlab-oauth-plugin/blob/master/docs/README.md)
+  - sonar: SonarQube Scanner plugin for Jenkins - version 2.11 or later
+- Configure Mattermost for SSO with GitLab (https://chat.domain/admin_console/authentication/gitlab)
+- Disable standard login from Mattermost:
+  - System console > Signup > Enable Account Creation: false
+  - System console > Email > Enable account creation with email: false
+  - System console > Email > Enable sign-in with email: false
+  - System console > Email > Enable sign-in with username: false
