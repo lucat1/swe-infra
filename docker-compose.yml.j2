@@ -170,7 +170,7 @@ services:
       - POSTGRES_DB=taiga
       - POSTGRES_USER=tuser
       - POSTGRES_PASSWORD={{ taiga_password.content }}
-      - POSTGRES_HOST=postgres:5432
+      - POSTGRES_HOST=postgres
       - TAIGA_SECRET_KEY={{ taiga_secret.content }}
       - TAIGA_SITES_DOMAIN=taiga.{{ domain }}
       - TAIGA_SITES_SCHEME=https
@@ -181,6 +181,8 @@ services:
       - taiga
 
   taiga_async:
+    extra_hosts:
+      - "postgres:host-gateway"
     image: taigaio/taiga-back:latest
     entrypoint: ["/taiga-back/docker/async_entrypoint.sh"]
     container_name: taiga_async
@@ -192,7 +194,7 @@ services:
       - POSTGRES_DB=taiga
       - POSTGRES_USER=tuser
       - POSTGRES_PASSWORD={{ taiga_password.content }}
-      - POSTGRES_HOST=postgres:5432
+      - POSTGRES_HOST=postgres
       - TAIGA_SECRET_KEY={{ taiga_secret.content }}
       - TAIGA_SITES_DOMAIN=taiga.{{ domain }}
       - TAIGA_SITES_SCHEME=https
@@ -271,9 +273,18 @@ services:
       - ./taiga-nginx.conf:/etc/nginx/conf.d/default.conf
       - /taiga/static:/taiga/static
       - /taiga/media:/taiga/media
-    networks:
-      - taiga
     depends_on:
       - taiga_front
       - taiga_back
       - taiga_events
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.taiga.rule=Host(`taiga.{{ domain }}`)"
+      - "traefik.http.routers.taiga.entrypoints=web-secure"
+      - "traefik.http.routers.taiga.tls.certresolver=default"
+      - "traefik.http.services.taiga.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.taiga_compress.compress=true"
+      - "traefik.http.routers.taiga.middlewares=taiga_compress"
+    networks:
+      - taiga
+      - traefik
