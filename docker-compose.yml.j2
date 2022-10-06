@@ -134,7 +134,7 @@ services:
     image: jenkins/jenkins:lts
     container_name: jenkins
     volumes:
-      - /jenkins:/var/jenkins/home
+      - /jenkins:/var/jenkins_home
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.jenkins.rule=Host(`ci.{{ domain }}`)"
