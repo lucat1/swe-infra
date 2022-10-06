@@ -32,7 +32,7 @@
       content: "{{ mattermost_db_password }}"
       dest: "/root/mattermost_password.txt"
   when: not mattermost_password_file.stat.exists
-- name: Generate password for Sonarqube postgresql database
+- name: Generate password for Mattermost postgresql database
   ansible.builtin.slurp:
     src: /root/mattermost_password.txt
   register: mattermost_db_password
@@ -61,13 +61,6 @@
     type: database
     obj: mattermost
     role: mmuser
-- name: Modify the file pg_hba.conf to allow the Mattermost server to communicate with the database
-  community.postgresql.postgresql_pg_hba:
-    dest: /etc/postgresql/14/main/pg_hba.conf
-    contype: host
-    users: all
-    databases: all
-    method: trust
 - name: Restart PostgresSQL
   ansible.builtin.service:
     name: postgresql

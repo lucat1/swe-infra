@@ -31,6 +31,14 @@
   ansible.builtin.slurp:
     src: /root/sonarqube_password.txt
   register: sonarqube_password
+- name: Read Taiga postgres password
+  ansible.builtin.slurp:
+    src: /root/taiga_password.txt
+  register: taiga_password
+- name: Read Taiga secret
+  ansible.builtin.slurp:
+    src: /root/taiga_secret.txt
+  register: taiga_password
 - name: Copy Docker compose
   ansible.builtin.template:
     src: ../docker-compose.yml.j2

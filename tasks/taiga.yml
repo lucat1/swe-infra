@@ -1,0 +1,85 @@
+- name: Create a file for the Taiga DB password
+  ansible.builtin.file:
+    path: /root/taiga_password.txt
+    state: touch
+    mode: '0700'
+    owner: root
+- name: Create a file for the Taiga secret
+  ansible.builtin.file:
+    path: /root/taiga_secret.txt
+    state: touch
+    mode: '0700'
+    owner: root
+- name: Create the '/taiga' directories
+  ansible.builtin.file:
+    path: '{{item}}'
+    state: directory
+    owner: 2000
+    group: 2000
+    mode: '0770'
+  loop:
+   - '/taiga/static'
+   - '/taiga/media'
+   - '/taiga/async'
+   - '/taiga/events'
+- name: Check if taiga_password.txt exists
+  ansible.builtin.stat:
+    path: /root/taiga_password.txt
+  register: taiga_password_file
+- name: Generate password for Taiga postgresql database
+  block:
+  - name: Generate random password for Taiga postgresql database
+    ansible.builtin.set_fact:
+      taiga_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
+  - name: Write Taiga DB password to a file
+    ansible.builtin.copy:
+      content: "{{ taiga_db_password }}"
+      dest: "/root/taiga_password.txt"
+  when: not taiga_password_file.stat.exists
+- name: Generate password for Taiga postgresql database
+  ansible.builtin.slurp:
+    src: /root/taiga_password.txt
+  register: taiga_db_password
+  when: taiga_password_file.stat.exists
+- name: Check if taiga_secret.txt exists
+  ansible.builtin.stat:
+    path: /root/taiga_secret.txt
+  register: taiga_secret_file
+- name: Generate secret for Taiga
+  block:
+  - name: Generate random secret for Taiga
+    ansible.builtin.set_fact:
+      taiga_secret: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
+  - name: Write Taiga secret to a file
+    ansible.builtin.copy:
+      content: "{{ taiga_secret }}"
+      dest: "/root/taiga_secret.txt"
+  when: not taiga_secret_file.stat.exists
+- name: Create the Taiga postgresql database
+  become: yes
+  become_user: postgres
+  community.postgresql.postgresql_db:
+    name: taiga
+    encoding: UTF-8
+    lc_collate: en_US.UTF-8 # TODO check with locale -a
+    lc_ctype: en_US.UTF-8
+    template: template0
+- name: Create the taiga postgresql user
+  become: yes
+  become_user: postgres
+  community.postgresql.postgresql_user:
+    name: tuser
+    password: '{{ taiga_db_password }}'
+- name: GRANT ALL PRIVILEGES ON DATABASE taiga TO tuser
+  become: yes
+  become_user: postgres
+  community.postgresql.postgresql_privs:
+    db: postgres
+    privs: ALL
+    type: database
+    obj: taiga
+    role: tuser
+- name: Restart PostgresSQL
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted
