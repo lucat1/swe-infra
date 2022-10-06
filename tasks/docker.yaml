@@ -1,6 +1,6 @@
-- name: Set maxsockbuf for HTTP3
+- name: Set rmem_max for HTTP3
   ansible.builtin.shell: |
-    sysctl -w kern.ipc.maxsockbuf=3014656
+    sysctl -w net.core.rmem_max=2500000
 - name: Add Docker repo
   block:
     - name: Download the Docker key
