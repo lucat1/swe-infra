@@ -17,7 +17,6 @@ Then:
   - sonar: SonarQube Scanner plugin for Jenkins - version 2.11 or later
 - Configure Mattermost for SSO with GitLab (https://chat.domain/admin_console/authentication/gitlab)
 - Disable standard login from Mattermost:
-  - System console > Signup > Enable Account Creation: false
   - System console > Email > Enable account creation with email: false
   - System console > Email > Enable sign-in with email: false
   - System console > Email > Enable sign-in with username: false

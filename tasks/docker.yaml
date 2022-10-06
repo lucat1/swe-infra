@@ -42,14 +42,12 @@
     name: docker
     state: restarted
     enabled: yes
-- name: Run `docker-compose down`
-  community.docker.docker_compose:
-    project_src: /root/
-    state: absent
+
 - name: Run `docker-compose up`
   community.docker.docker_compose:
     project_src: /root/
     build: false
+    remove_orphans: true
   register: docker_compose_output
 
 - name: Print docker compose output
