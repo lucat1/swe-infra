@@ -30,3 +30,4 @@ Then:
 - Change taiga's admin password
   - `docker-compose exec -e POSTGRES_DB=taiga -e POSTGRES_USER=tuser -e POSTGRES_PASSWORD=$(cat taiga_password.txt) -e POSTGRES_HOST=postgres taiga_back bash`
   - `python manage.py`
+- Create an .ssh/config with a host named backup pointing to your backup server.

@@ -10,3 +10,10 @@
     name: "Daily backup"
     hour: "4"
     job: "/root/backup.sh"
+- name: Copy restore script
+  ansible.builtin.copy:
+    src: restore.sh
+    dest: /root/restore.sh
+    owner: root
+    group: root
+    mode: '0700'
