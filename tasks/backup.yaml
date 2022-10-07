@@ -1,0 +1,12 @@
+- name: Copy backup script
+  ansible.builtin.copy:
+    src: backup.sh
+    dest: /root/backup.sh
+    owner: root
+    group: root
+    mode: '0700'
+- name: Backup cronjob
+  ansible.builtin.cron:
+    name: "Daily backup"
+    hour: "4"
+    job: "/root/backup.sh"

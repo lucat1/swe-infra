@@ -18,3 +18,5 @@
     ansible.builtin.import_tasks: tasks/taiga.yaml
   - name: Setup Docker
     ansible.builtin.import_tasks: tasks/docker.yaml
+  - name: Setup backup
+    ansible.builtin.import_tasks: tasks/backup.yaml
