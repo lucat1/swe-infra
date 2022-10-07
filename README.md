@@ -50,7 +50,7 @@ Manage Jenkins > Manage Plugins > Available > Install `sonar`
 
 Subdomain: `qube`
 
-Set Administration > General > Server base URL
+Set the Administration > General > Server base URL
 
 Enable SonarQube SSO with GitLab and set the global settings: [SonarQube Docs](https://docs.sonarqube.org/latest/analysis/gitlab-integration/)
 
@@ -58,7 +58,7 @@ Enable SonarQube SSO with GitLab and set the global settings: [SonarQube Docs](h
 
 Subdomain: `chat`
 
-On Mattermost create an admin account with an username different from `root`.
+On Mattermost create an admin account with a username different from `root`.
 
 Go to System Console > Authentication > GitLab and follow the instructions.
 
@@ -83,4 +83,4 @@ Create a new GitLab Application:
 
 Change the variables in the `hosts` file and execute the Ansible playbook.
 
-Know issue: the very first login with GitLab fails.
+Known issue: the very first login with GitLab fails.
