@@ -8,3 +8,6 @@ datacenter:
       domain_email: user@example.com
       taiga_gitlab_client_id: ...
       taiga_gitlab_client_secret: ...
+      backup_host: backup_host
+      backup_port: backup_port
+      backup_user: root (required to preserve uid/gid with rsync)

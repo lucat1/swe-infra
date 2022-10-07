@@ -1,0 +1,9 @@
+#!/bin/bash -x
+docker-compose down
+for dir in gitlab mattermost jenkins taiga sonarqube postgres swe
+do
+	rm -rf /$dir/*
+	rsync -avzhp --numeric-ids -e "ssh -p {{ backup_port }}" {{ backup_user }}@{{ backup_host }}:/backup/$dir /
+done
+su postgres -c "psql -f /postgres/db.out postgres"
+docker-compose up -d

@@ -29,7 +29,7 @@
   block:
   - name: Read the file
     ansible.builtin.slurp:
-      src: /root/mattermost_password.txt
+      src: /swe/mattermost_password.txt
     register: mattermost_password_base
   - name: Decode the variable
     set_fact:
@@ -39,7 +39,7 @@
   block:
   - name: Read the file
     ansible.builtin.slurp:
-      src: /root/sonarqube_password.txt
+      src: /swe/sonarqube_password.txt
     register: sonarqube_password_base
   - name: Decode the variable
     set_fact:
@@ -49,7 +49,7 @@
   block:
   - name: Read the file
     ansible.builtin.slurp:
-      src: /root/taiga_password.txt
+      src: /swe/taiga_password.txt
     register: taiga_password_base
   - name: Decode the variable
     set_fact:
@@ -59,7 +59,7 @@
   block:
   - name: Read the file
     ansible.builtin.slurp:
-      src: /root/taiga_secret.txt
+      src: /swe/taiga_secret.txt
     register: taiga_secret_base
   - name: Decode the variable
     set_fact:
@@ -68,7 +68,7 @@
 - name: Copy Docker compose
   ansible.builtin.template:
     src: ../docker-compose.yml.j2
-    dest: /root/docker-compose.yml
+    dest: /swe/docker-compose.yml
     owner: root
     mode: '0700'
 
@@ -80,7 +80,7 @@
 
 - name: Run `docker-compose up`
   community.docker.docker_compose:
-    project_src: /root/
+    project_src: /swe/
     build: false
     remove_orphans: true
   register: docker_compose_output

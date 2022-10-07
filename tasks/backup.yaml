@@ -1,7 +1,7 @@
 - name: Copy backup script
-  ansible.builtin.copy:
-    src: backup.sh
-    dest: /root/backup.sh
+  ansible.builtin.template:
+    src: backup.sh.j2
+    dest: /swe/backup.sh
     owner: root
     group: root
     mode: '0700'
@@ -9,11 +9,12 @@
   ansible.builtin.cron:
     name: "Daily backup"
     hour: "4"
-    job: "/root/backup.sh"
+    user: "root"
+    job: "/swe/backup.sh"
 - name: Copy restore script
-  ansible.builtin.copy:
-    src: restore.sh
-    dest: /root/restore.sh
+  ansible.builtin.template:
+    src: restore.sh.j2
+    dest: /swe/restore.sh
     owner: root
     group: root
     mode: '0700'

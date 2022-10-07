@@ -4,6 +4,7 @@
     - ufw
     - fail2ban
     state: latest
+
 - name: Allow TCP on some ports
   community.general.ufw:
     rule: allow
@@ -14,21 +15,44 @@
     - 22
     - 80
     - 443
+
 - name: Allow UDP for 443
   community.general.ufw:
     rule: allow
     port: 443
+
+- name: Allow all connections to the host from Docker
+  community.general.ufw:
+    rule: allow
+    from_ip: 172.16.0.0/12
+    to_ip: 172.16.0.0/12
+
+- name: Enable ufw
+  community.general.ufw:
+    state: enabled
+    default: deny
+
 - name: Copy default fail2ban config
   ansible.builtin.copy:
     src: jail.local
     dest: /etc/fail2ban/jail.local
+
 - name: Enable and start service fail2ban
   ansible.builtin.service:
     name: fail2ban
     state: started
     enabled: yes
+
 - name: Enable and start service ufw
   ansible.builtin.service:
     name: ufw
     state: started
     enabled: yes
+
+- name: Create the '/swe' directory
+  ansible.builtin.file:
+    path: '/swe'
+    state: directory
+    owner: 'root'
+    group: 'root'
+    mode: '0700'

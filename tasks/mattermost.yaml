@@ -11,11 +11,11 @@
    - '/mattermost/logs'
    - '/mattermost/plugins'
    - '/mattermost/client-plugins'
-   - '/mattermost/belve-indexes'
+   - '/mattermost/bleve-indexes'
 
 - name: Check if mattermost_password.txt exists
   ansible.builtin.stat:
-    path: /root/mattermost_password.txt
+    path: /swe/mattermost_password.txt
   register: mattermost_password_file
 
 - name: Generate the password for the Mattermost postgresql database
@@ -25,21 +25,21 @@
       mattermost_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
   - name: Create a file for Mattermost DB password
     ansible.builtin.file:
-      path: /root/mattermost_password.txt
+      path: /swe/mattermost_password.txt
       state: touch
       mode: '0700'
       owner: root
   - name: Write Mattermost DB password to a file
     ansible.builtin.copy:
       content: "{{ mattermost_db_password }}"
-      dest: /root/mattermost_password.txt
+      dest: /swe/mattermost_password.txt
   when: not mattermost_password_file.stat.exists
 
 - name: Read the password for the Mattermost postgresql database
   block:
     - name: Read the file
       ansible.builtin.slurp:
-        src: /root/mattermost_password.txt
+        src: /swe/mattermost_password.txt
       register: mattermost_db_password_base
     - name: Decode the variable
       set_fact:

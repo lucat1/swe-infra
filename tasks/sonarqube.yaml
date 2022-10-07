@@ -4,7 +4,7 @@
 
 - name: Check if sonarqube_password.txt exists
   ansible.builtin.stat:
-    path: /root/sonarqube_password.txt
+    path: /swe/sonarqube_password.txt
   register: sonarqube_password_file
 
 - name: Generate the password for the Sonarqube postgresql database
@@ -14,21 +14,21 @@
       sonarqube_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
   - name: Create a file for Sonarqube DB password
     ansible.builtin.file:
-      path: /root/sonarqube.txt
+      path: /swe/sonarqube.txt
       state: touch
       mode: '0700'
       owner: root
   - name: Write Sonarqube DB password to a file
     ansible.builtin.copy:
       content: "{{ sonarqube_db_password }}"
-      dest: /root/sonarqube_password.txt
+      dest: /swe/sonarqube_password.txt
   when: not sonarqube_password_file.stat.exists
 
 - name: Read the password for the Sonarqube postgresql database
   block:
   - name: Read the file
     ansible.builtin.slurp:
-      src: /root/sonarqube_password.txt
+      src: /swe/sonarqube_password.txt
     register: sonarqube_db_password_base
   - name: Decode the variable
     set_fact:

@@ -1,4 +1,4 @@
-- name: Create the '/taiga/media' directories
+- name: Create the '/taiga/media' directory
   ansible.builtin.file:
     path: '/taiga/media'
     state: directory
@@ -8,7 +8,7 @@
 
 - name: Check if taiga_password.txt exists
   ansible.builtin.stat:
-    path: /root/taiga_password.txt
+    path: /swe/taiga_password.txt
   register: taiga_password_file
 
 - name: Generate the password for the Taiga postgresql database
@@ -18,21 +18,21 @@
       taiga_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
   - name: Create a file for the Taiga DB password
     ansible.builtin.file:
-      path: /root/taiga_password.txt
+      path: /swe/taiga_password.txt
       state: touch
       mode: '0700'
       owner: root
   - name: Write Taiga DB password to a file
     ansible.builtin.copy:
       content: "{{ taiga_db_password }}"
-      dest: /root/taiga_password.txt
+      dest: /swe/taiga_password.txt
   when: not taiga_password_file.stat.exists
 
 - name: Read the Taiga postgresql password
   block:
     - name: Read the file
       ansible.builtin.slurp:
-        src: /root/taiga_password.txt
+        src: /swe/taiga_password.txt
       register: taiga_db_password_base
     - name: Decode the variable
       set_fact:
@@ -41,7 +41,7 @@
 
 - name: Check if taiga_secret.txt exists
   ansible.builtin.stat:
-    path: /root/taiga_secret.txt
+    path: /swe/taiga_secret.txt
   register: taiga_secret_file
 
 - name: Generate secret for Taiga
@@ -51,14 +51,14 @@
       taiga_secret: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
   - name: Create a file for the Taiga secret
     ansible.builtin.file:
-      path: /root/taiga_secret.txt
+      path: /swe/taiga_secret.txt
       state: touch
       mode: '0700'
       owner: root
   - name: Write Taiga secret to a file
     ansible.builtin.copy:
       content: "{{ taiga_secret }}"
-      dest: /root/taiga_secret.txt
+      dest: /swe/taiga_secret.txt
   when: not taiga_secret_file.stat.exists
 
 - name: Create the Taiga postgresql database
@@ -96,6 +96,6 @@
 - name: Copy taiga-nginx.conf
   ansible.builtin.template:
     src: ../taiga-nginx.conf
-    dest: /root/taiga-nginx.conf
+    dest: /swe/taiga-nginx.conf
     owner: root
     mode: '0700'
