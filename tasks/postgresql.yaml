@@ -47,6 +47,14 @@
     method: password
     source: 0.0.0.0/0
 
+- name: Create the '/postgres' directory
+  ansible.builtin.file:
+    path: /postgres
+    state: directory
+    owner: 'postgres'
+    group: 'postgres'
+    mode: '0770'
+
 - name: Restart and enable PostgreSQL
   ansible.builtin.service:
     name: postgresql
