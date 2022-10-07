@@ -3,7 +3,7 @@ docker-compose down
 su postgres -c "cd /postgres; pg_dumpall > db.out"
 for dir in gitlab mattermost jenkins taiga sonarqube postgres swe
 do
-	rsync -avzhp --numeric-ids /$dir -e "ssh -p {{ backup_port }}" {{ backup_user }}@{{ backup_host }}:/backup/
+	rsync -avzhp --numeric-ids /$dir -e "ssh -p {{ backup_port }}" root@{{ backup_host }}:/backup/
 done
 docker-compose up -d
 rm /postgres/db.out
