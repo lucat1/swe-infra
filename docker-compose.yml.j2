@@ -5,7 +5,7 @@ networks:
 
 volumes:
   jenkins-docker-certs:
-  taiga-media:
+  taiga-static:
   taiga-async:
   taiga-events:
 
@@ -166,8 +166,8 @@ services:
     extra_hosts:
       - "postgres:host-gateway"
     volumes:
-      - /taiga/static:/taiga-back/static
-      - taiga-media:/taiga-back/media
+      - taiga-static:/taiga-back/static
+      - /taiga/media:/taiga-back/media
     environment:
       - POSTGRES_DB=taiga
       - POSTGRES_USER=tuser
@@ -193,8 +193,8 @@ services:
     container_name: taiga_async
     restart: unless-stopped
     volumes:
-      - /taiga/static:/taiga-back/static
-      - taiga-media:/taiga-back/media
+      - taiga-static:/taiga-back/static
+      - /taiga/media:/taiga-back/media
     environment:
       - POSTGRES_DB=taiga
       - POSTGRES_USER=tuser
@@ -217,7 +217,7 @@ services:
     container_name: taiga_async_rabbitmq
     restart: unless-stopped
     volumes:
-      - /taiga/async_rabbitmq:/var/lib/rabbitmq
+      - taiga-async:/var/lib/rabbitmq
     environment:
       - RABBITMQ_ERLANG_COOKIE={{ taiga_secret }}
       - RABBITMQ_DEFAULT_USER=tuser
@@ -279,8 +279,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./taiga-nginx.conf:/etc/nginx/conf.d/default.conf
-      - /taiga/static:/taiga/static
-      - taiga-media:/taiga/media
+      - taiga-static:/taiga/static
+      - /taiga/media:/taiga/media
     depends_on:
       - taiga_front
       - taiga_back
