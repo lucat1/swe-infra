@@ -178,7 +178,12 @@ services:
       - TAIGA_SITES_SCHEME=https
       - RABBITMQ_USER=tuser
       - RABBITMQ_PASS={{ taiga_password }}
-      - ENABLE_TELEMETRY="False"
+      - ENABLE_TELEMETRY=False
+      - ENABLE_GITLAB_AUTH=True
+      - GITLAB_API_CLIENT_ID=gitlab-client-id
+      - GITLAB_API_CLIENT_SECRET=gitlab-client-secret
+      - GITLAB_URL=https://git.{{ domain }}
+      - PUBLIC_REGISTER_ENABLED=True
     depends_on:
       - taiga_events_rabbitmq
       - taiga_async_rabbitmq
@@ -233,6 +238,10 @@ services:
     environment:
       - TAIGA_URL=https://taiga.{{ domain }}
       - TAIGA_WEBSOCKETS_URL=wss://taiga.{{ domain }}
+      - ENABLE_GITLAB_AUTH=true
+      - GITLAB_CLIENT_ID=gitlab-client-id
+      - GITLAB_URL=https://git.{{ domain }}
+      - PUBLIC_REGISTER_ENABLED=true
     networks:
       - traefik
 
