@@ -25,7 +25,7 @@
     state: latest
     update_cache: yes
 
-- name: Read Mattermost postgres password
+- name: Read Mattermost PostgresSQL password
   block:
   - name: Read the file
     ansible.builtin.slurp:
@@ -35,7 +35,7 @@
     set_fact:
       mattermost_password: "{{ mattermost_password_base.content | b64decode }}"
 
-- name: Read Sonarqube postgres password
+- name: Read SonarQube PostgresSQL password
   block:
   - name: Read the file
     ansible.builtin.slurp:
@@ -45,7 +45,7 @@
     set_fact:
       sonarqube_password: "{{ sonarqube_password_base.content | b64decode }}"
 
-- name: Read Taiga postgres password
+- name: Read Taiga PostgresSQL password
   block:
   - name: Read the file
     ansible.builtin.slurp:
@@ -78,7 +78,7 @@
     state: restarted
     enabled: yes
 
-- name: Run `docker-compose up`
+- name: Run 'docker-compose up'
   community.docker.docker_compose:
     project_src: /swe/
     build: false

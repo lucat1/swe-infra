@@ -11,9 +11,9 @@
     path: /swe/taiga_password.txt
   register: taiga_password_file
 
-- name: Generate the password for the Taiga postgresql database
+- name: Generate the password for the Taiga PostgresSQL database
   block:
-  - name: Generate random password for Taiga postgresql database
+  - name: Generate random password for Taiga PostgresSQL database
     ansible.builtin.set_fact:
       taiga_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
   - name: Create a file for the Taiga DB password
@@ -28,7 +28,7 @@
       dest: /swe/taiga_password.txt
   when: not taiga_password_file.stat.exists
 
-- name: Read the Taiga postgresql password
+- name: Read the Taiga PostgresSQL password
   block:
     - name: Read the file
       ansible.builtin.slurp:
@@ -61,7 +61,7 @@
       dest: /swe/taiga_secret.txt
   when: not taiga_secret_file.stat.exists
 
-- name: Create the Taiga postgresql database
+- name: Create the Taiga PostgresSQL database
   become: yes
   become_user: postgres
   community.postgresql.postgresql_db:
@@ -71,7 +71,7 @@
     lc_ctype: en_US.UTF-8
     template: template0
 
-- name: Create the taiga postgresql user
+- name: Create the taiga PostgresSQL user
   become: yes
   become_user: postgres
   community.postgresql.postgresql_user:

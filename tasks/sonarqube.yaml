@@ -7,12 +7,12 @@
     path: /swe/sonarqube_password.txt
   register: sonarqube_password_file
 
-- name: Generate the password for the Sonarqube postgresql database
+- name: Generate the password for the SonarQube PostgresSQL database
   block:
-  - name: Generate random password for Sonarqube postgresql database
+  - name: Generate random password for Sonarqube PostgresSQL database
     ansible.builtin.set_fact:
       sonarqube_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
-  - name: Create a file for Sonarqube DB password
+  - name: Create a file for SonarQube DB password
     ansible.builtin.file:
       path: /swe/sonarqube.txt
       state: touch
@@ -24,7 +24,7 @@
       dest: /swe/sonarqube_password.txt
   when: not sonarqube_password_file.stat.exists
 
-- name: Read the password for the Sonarqube postgresql database
+- name: Read the password for the SonarQube PostgresSQL database
   block:
   - name: Read the file
     ansible.builtin.slurp:
@@ -35,7 +35,7 @@
       sonarqube_db_password: "{{ sonarqube_db_password_base.content | b64decode }}"
   when: sonarqube_password_file.stat.exists
 
-- name: Create the Sonarqube postgresql database
+- name: Create the SonarQube PostgresSQL database
   become: yes
   become_user: postgres
   community.postgresql.postgresql_db:
@@ -45,7 +45,7 @@
     lc_ctype: en_US.UTF-8
     template: template0
 
-- name: Create the sonarqube postgresql user
+- name: Create the SonarQube PostgresSQL user
   become: yes
   become_user: postgres
   community.postgresql.postgresql_user:
@@ -62,7 +62,7 @@
     obj: sonarqube
     role: squser
 
-- name: Restart postgresql
+- name: Restart PostgresSQL
   ansible.builtin.service:
     name: postgresql
     state: restarted

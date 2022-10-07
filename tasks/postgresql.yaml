@@ -2,11 +2,6 @@
   ansible.builtin.set_fact:
     postgresql_version: 13
 
-- name: Install sudo
-  ansible.builtin.package:
-    name:
-      - sudo
-
 - name: Add PostgreSQL repo
   block:
     - name: Download the PostgreSQL key
@@ -34,11 +29,12 @@
     state: restarted
     enabled: yes
 
-- name: Make postgres listen on 0.0.0.0
+- name: Make PostgreSQL listen on 0.0.0.0
   ansible.builtin.lineinfile:
     path: '/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf'
     line: "listen_addresses = '*'"
-- name: Modify the file pg_hba.conf to allow the Mattermost server to communicate with the database
+
+- name: Modify the file pg_hba.conf to allow to communicate with the database
   community.postgresql.postgresql_pg_hba:
     dest: '/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf'
     contype: host
