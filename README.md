@@ -2,7 +2,7 @@
 
 Setup GitLab, Jenkins, SonarQube, Mattermost and Taiga.
 
-You need root access to a server via SSH.
+You need root access to a server with Debian via SSH.
 
 Clone this repository and create a `hosts` file (you can find an example on `hosts.example`, not all variables can be set immediately) and execute the Ansible playbook: `ansible-playbook install.yaml`.
 
@@ -49,6 +49,8 @@ Manage Jenkins > Manage Plugins > Available > Install `sonar`
 ## SonarQube
 
 Subdomain: `qube`
+
+Log in to your SonarQube instance: username `admin`, password `admin` (you will ask to change it on first login).
 
 Set the Administration > General > Server base URL
 
