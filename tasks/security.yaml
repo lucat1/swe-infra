@@ -1,9 +1,10 @@
-- name: Install ufw, fail2ban and sudo
+- name: Install fail2ban, rsync, sudo and ufw
   ansible.builtin.package:
-    name: 
-    - ufw
-    - fail2ban
-    - sudo
+    name:
+      - fail2ban
+      - rsync
+      - sudo
+      - ufw
     state: latest
 
 - name: Allow TCP on some ports
