@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>{{ domain }}</title>
+  <style>
+    :root {
+      --b: #fafafa;
+      --db: #d6d3d1;
+      --c: #171717;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --b: #171717;
+        --db: #404040;
+        --c: #fafafa;
+      }
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-family: monospace;
+      font-size: 18px;
+      background: var(--b);
+    }
+
+    .link {
+      display: flex;
+      align-items: center;
+      padding: .75rem 1.5rem;
+      width: min(12rem, 90vw);
+      border-radius: 1rem;
+      background: var(--db);
+      color: var(--c);
+      text-decoration: none;
+    }
+
+    .link img {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .link span {
+      margin-left: 1.5rem;
+    }
+
+    .link:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body style="">
+  <a class="link" href="https://git.{{ domain }}/">
+    <img src="https://git.{{ domain }}/favicon.ico" alt="GitLab icon">
+    <span>GitLab</span>
+  </a>
+  <a class="link" href="https://ci.{{ domain }}/">
+    <img src="https://ci.{{ domain }}/favicon.ico" alt="Jenkins icon">
+    <span>Jenkins</span>
+  </a>
+  <a class="link" href="https://qube.{{ domain }}/">
+    <img src="https://qube.{{ domain }}/favicon.ico" alt="SonarQube icon">
+    <span>SonarQube</span>
+  </a>
+  <a class="link" href="https://chat.{{ domain }}/">
+    <img src="https://chat.{{ domain }}/static/images/favicon/favicon-default-96x96.png" alt="Mattermost icon">
+    <span>Mattermost</span>
+  </a>
+  <a class="link" href="https://taiga.{{ domain }}/">
+    <img src="https://taiga.{{ domain }}/v-1631701833072/images/favicon.png" alt="Taiga icon">
+    <span>Taiga</span>
+  </a>
+</body>
+
+</html>

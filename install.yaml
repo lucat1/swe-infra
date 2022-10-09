@@ -16,6 +16,8 @@
     ansible.builtin.import_tasks: tasks/sonarqube.yaml
   - name: Setup Taiga
     ansible.builtin.import_tasks: tasks/taiga.yaml
+  - name: Setup homepage
+    ansible.builtin.import_tasks: tasks/homepage.yaml
   - name: Setup Docker
     ansible.builtin.import_tasks: tasks/docker.yaml
   - name: Setup backup

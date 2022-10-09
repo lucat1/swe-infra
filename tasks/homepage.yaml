@@ -1,0 +1,15 @@
+- name: Create the '/homepage' directory
+  ansible.builtin.file:
+    path: /homepage
+    state: directory
+    owner: root
+    group: root
+    mode: '0775'
+
+- name: Copy backup script
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /homepage/index.html
+    owner: root
+    group: root
+    mode: '0774'
