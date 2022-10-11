@@ -176,8 +176,8 @@ services:
       - TAIGA_SECRET_KEY={{ taiga_secret }}
       - TAIGA_SITES_DOMAIN=taiga.{{ domain }}
       - TAIGA_SITES_SCHEME=https
-      - RABBITMQ_USER=tuser
-      - RABBITMQ_PASS={{ taiga_password }}
+      - EVENTS_PUSH_BACKEND_URL=amqp://tuser:{{ taiga_password }}@taiga_events_rabbitmq:5672/taiga
+      - CELERY_BROKER_URL=amqp://tuser:{{ taiga_password }}@taiga_async_rabbitmq:5672/taiga
       - ENABLE_TELEMETRY=False
       - ENABLE_GITLAB_AUTH=True
       - GITLAB_API_CLIENT_ID={{ taiga_gitlab_client_id }}
@@ -208,8 +208,8 @@ services:
       - TAIGA_SECRET_KEY={{ taiga_secret }}
       - TAIGA_SITES_DOMAIN=taiga.{{ domain }}
       - TAIGA_SITES_SCHEME=https
-      - RABBITMQ_USER=tuser
-      - RABBITMQ_PASS={{ taiga_password }}
+      - EVENTS_PUSH_BACKEND_URL=amqp://tuser:{{ taiga_password }}@taiga_events_rabbitmq:5672/taiga
+      - CELERY_BROKER_URL=amqp://tuser:{{ taiga_password }}@taiga_async_rabbitmq:5672/taiga
       - ENABLE_TELEMETRY="False"
     depends_on:
       - taiga_back
@@ -250,8 +250,8 @@ services:
     container_name: taiga_events
     restart: unless-stopped
     environment:
-      - RABBITMQ_USER=tuser
-      - RABBITMQ_PASS={{ taiga_password }}
+      - EVENTS_PUSH_BACKEND_URL=amqp://tuser:{{ taiga_secret }}@taiga_events_rabbitmq:5672/taiga
+      - CELERY_BROKER_URL=amqp://tuser:{{ taiga_secret }}@taiga_async_rabbitmq:5672/taiga
       - TAIGA_SECRET_KEY={{ taiga_secret }}
     depends_on:
       - taiga_events_rabbitmq
@@ -265,10 +265,10 @@ services:
     volumes:
       - taiga-events:/var/lib/rabbitmq
     environment:
-      RABBITMQ_ERLANG_COOKIE: {{ taiga_secret }}
-      RABBITMQ_DEFAULT_USER: tuser
-      RABBITMQ_DEFAULT_PASS: {{ taiga_password }}
-      RABBITMQ_DEFAULT_VHOST: taiga
+      - RABBITMQ_ERLANG_COOKIE={{ taiga_secret }}
+      - RABBITMQ_DEFAULT_USER=tuser
+      - RABBITMQ_DEFAULT_PASS={{ taiga_password }}
+      - RABBITMQ_DEFAULT_VHOST=taiga
     networks:
       - traefik
 
@@ -287,7 +287,7 @@ services:
     container_name: taiga_gateway
     restart: unless-stopped
     volumes:
-      - ./taiga-nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./taiga_nginx.conf:/etc/nginx/conf.d/default.conf
       - taiga-static:/taiga/static
       - /taiga/media:/taiga/media
     depends_on:
