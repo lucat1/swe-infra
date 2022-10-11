@@ -93,9 +93,9 @@
     name: postgresql
     state: restarted
 
-- name: Copy taiga-nginx.conf
+- name: Copy taiga_nginx.conf
   ansible.builtin.template:
-    src: ../taiga-nginx.conf
-    dest: /swe/taiga-nginx.conf
+    src: ../taiga_nginx.conf
+    dest: /swe/taiga_nginx.conf
     owner: root
     mode: '0700'
