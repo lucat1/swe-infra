@@ -27,7 +27,7 @@
     state: latest
     update_cache: yes
 
-- name: Read Mattermost PostgresSQL password
+- name: Read Mattermost PostgreSQL password
   block:
   - name: Read the file
     ansible.builtin.slurp:
@@ -37,7 +37,7 @@
     set_fact:
       mattermost_password: "{{ mattermost_password_base.content | b64decode }}"
 
-- name: Read SonarQube PostgresSQL password
+- name: Read SonarQube PostgreSQL password
   block:
   - name: Read the file
     ansible.builtin.slurp:
@@ -47,7 +47,7 @@
     set_fact:
       sonarqube_password: "{{ sonarqube_password_base.content | b64decode }}"
 
-- name: Read Taiga PostgresSQL password
+- name: Read Taiga PostgreSQL password
   block:
   - name: Read the file
     ansible.builtin.slurp:

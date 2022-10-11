@@ -18,9 +18,9 @@
     path: /swe/mattermost_password.txt
   register: mattermost_password_file
 
-- name: Generate the password for the Mattermost PostgresSQL database
+- name: Generate the password for the Mattermost PostgreSQL database
   block:
-  - name: Generate random password for Mattermost PostgresSQL database
+  - name: Generate random password for Mattermost PostgreSQL database
     ansible.builtin.set_fact:
       mattermost_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
   - name: Create a file for Mattermost DB password
@@ -35,7 +35,7 @@
       dest: /swe/mattermost_password.txt
   when: not mattermost_password_file.stat.exists
 
-- name: Read the password for the Mattermost PostgresSQL database
+- name: Read the password for the Mattermost PostgreSQL database
   block:
     - name: Read the file
       ansible.builtin.slurp:
@@ -46,7 +46,7 @@
         mattermost_db_password: "{{ mattermost_db_password_base.content | b64decode }}"
   when: mattermost_password_file.stat.exists
 
-- name: Create the Mattermost PostgresSQL database
+- name: Create the Mattermost PostgreSQL database
   become: yes
   become_user: postgres
   community.postgresql.postgresql_db:
@@ -56,7 +56,7 @@
     lc_ctype: en_US.UTF-8
     template: template0
 
-- name: Create the Mattermost PostgresSQL user
+- name: Create the Mattermost PostgreSQL user
   become: yes
   become_user: postgres
   community.postgresql.postgresql_user:
@@ -73,7 +73,7 @@
     obj: mattermost
     role: mmuser
 
-- name: Restart PostgresSQL
+- name: Restart PostgreSQL
   ansible.builtin.service:
     name: postgresql
     state: restarted
