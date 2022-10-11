@@ -80,9 +80,7 @@ Subdomain: `taiga`
 
 Create a new GitLab Application:
 
-- Redirect URI: https://taiga.<domain>/login
+- Redirect URI: `https://taiga.<domain>/login`
 - Scopes: read_user
 
 Change the variables in the `hosts` file and execute the Ansible playbook.
-
-Known issue: the very first login with GitLab fails.
