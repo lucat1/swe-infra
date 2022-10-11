@@ -2,8 +2,8 @@
   ansible.builtin.file:
     path: '/taiga/media'
     state: directory
-    owner: 101
-    group: 101
+    owner: 999
+    group: 999
     mode: '0770'
 
 - name: Check if taiga_password.txt exists

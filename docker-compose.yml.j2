@@ -283,9 +283,10 @@ services:
       - traefik
 
   taiga_gateway:
-    image: nginx:1.19-alpine
+    image: nginxinc/nginx-unprivileged
     container_name: taiga_gateway
     restart: unless-stopped
+    user: 999:999
     volumes:
       - ./taiga_nginx.conf:/etc/nginx/conf.d/default.conf
       - taiga-static:/taiga/static
