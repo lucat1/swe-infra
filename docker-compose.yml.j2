@@ -250,8 +250,7 @@ services:
     container_name: taiga_events
     restart: unless-stopped
     environment:
-      - EVENTS_PUSH_BACKEND_URL=amqp://tuser:{{ taiga_secret }}@taiga_events_rabbitmq:5672/taiga
-      - CELERY_BROKER_URL=amqp://tuser:{{ taiga_secret }}@taiga_async_rabbitmq:5672/taiga
+      - RABBITMQ_URL=amqp://tuser:{{ taiga_password }}@taiga_events_rabbitmq:5672/taiga
       - TAIGA_SECRET_KEY={{ taiga_secret }}
     depends_on:
       - taiga_events_rabbitmq
