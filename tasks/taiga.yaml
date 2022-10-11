@@ -97,5 +97,6 @@
   ansible.builtin.template:
     src: ../taiga_nginx.conf
     dest: /swe/taiga_nginx.conf
-    owner: root
-    mode: '0700'
+    owner: 999
+    group: 999
+    mode: '0770'
