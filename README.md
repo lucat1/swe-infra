@@ -30,6 +30,10 @@ Disable user registration or set the `Allowed domains for sign-ups`: [GitLab Doc
 
 Disable Service Ping: [GitLab Docs](https://docs.gitlab.com/ee/user/admin_area/settings/usage_statistics.html#enable-or-disable-usage-statistics)
 
+To setup the GitLab docker change the `/swe/docker-compose.yml` file on the remote
+and replace the `GITLAB_RUNNER_TOKEN` variable with one obtained from `https://git.{{ domain }}/admin/runners`.
+The run `docker-compose up -d` to let the Runner be registered.
+
 ## Jenkins
 
 Subdomain: `ci`
