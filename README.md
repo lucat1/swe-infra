@@ -28,6 +28,8 @@ Log in to GitLab.
 
 Disable user registration or set the `Allowed domains for sign-ups`: [GitLab Docs](https://docs.gitlab.com/ee/user/admin_area/settings/sign_up_restrictions.html)
 
+Disable Service Ping: [GitLab Docs](https://docs.gitlab.com/ee/user/admin_area/settings/usage_statistics.html#enable-or-disable-usage-statistics)
+
 ## Jenkins
 
 Subdomain: `ci`
@@ -73,6 +75,8 @@ To share the root account from GitLab to Mattermost:
 - Disable non-SSO login in Mattermost:
   - System console > Email > Enable sign-in with email: false
   - System console > Email > Enable sign-in with username: false
+
+To enable push notifications: System Console > Environment > Push Notification Server > Enable Push Notifications: Use TPNS connection to send notifications to iOS and Android apps
 
 ## Taiga
 
