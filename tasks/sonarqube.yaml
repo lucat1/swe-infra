@@ -11,7 +11,7 @@
 
 - name: Generate the password for the SonarQube PostgreSQL database
   block:
-  - name: Generate random password for Sonarqube PostgreSQL database
+  - name: Generate random password for SonarQube PostgreSQL database
     ansible.builtin.set_fact:
       sonarqube_db_password: "{{ lookup('ansible.builtin.password', '/dev/null') }}"
   - name: Create a file for SonarQube DB password
@@ -20,7 +20,7 @@
       state: touch
       mode: '0700'
       owner: root
-  - name: Write Sonarqube DB password to a file
+  - name: Write SonarQube DB password to a file
     ansible.builtin.copy:
       content: "{{ sonarqube_db_password }}"
       dest: /swe/sonarqube_password.txt
