@@ -19,3 +19,10 @@
     owner: 999
     group: 999
     mode: '0770'
+- name: Create the 'config.toml' for the GitLab runner
+  ansible.builtin.template:
+    src: ../config.toml
+    dest: /swe/config.toml
+    owner: root
+    group: root
+    mode: '0770'

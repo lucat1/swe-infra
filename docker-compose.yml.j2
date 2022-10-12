@@ -307,6 +307,38 @@ services:
     networks:
       - traefik
 
+  runner:
+    restart: always
+    image: registry.gitlab.com/gitlab-org/gitlab-runner:alpine
+    volumes:
+      - jenkins-docker-certs:/certs/client:ro
+      - ./config.toml:/etc/gitlab-runner/config.toml
+    environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
+    depends_on:
+      - docker
+
+  register_runner:
+    restart: 'no'
+    image: registry.gitlab.com/gitlab-org/gitlab-runner:alpine
+    depends_on:
+      - runner
+    environment:
+      - CI_SERVER_URL=https://git.{{ domain }}/
+      - REGISTRATION_TOKEN=A3HCQdvAkhJmPASdh-ZB
+    command:
+      - register
+      - --non-interactive
+      - --locked=false
+      - --name=runner0
+      - --executor=docker
+      - --docker-image=docker:dind
+      - --docker-volumes=/var/run/docker.sock:/var/run/docker.sock
+    volumes:
+      - ./config.toml:/etc/gitlab-runner/config.toml
+
   homepage:
     image: flashspys/nginx-static
     container_name: homepage
