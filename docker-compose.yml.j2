@@ -125,24 +125,26 @@ services:
       - traefik
 
 
-  dind:
-    image: docker:20-dind
-    container_name: dind
+  docker:
+    image: docker:dind
+    container_name: docker
     restart: unless-stopped
     privileged: true
-    environment:
-      DOCKER_TLS_CERTDIR: ""
     volumes:
-      - /jenkins:/var/jenkins_home
       - jenkins-docker-certs:/certs/client
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
     command:
       - --storage-driver=overlay2
+    networks:
+      - traefik
 
   jenkins:
     image: jenkins/jenkins:lts
     container_name: jenkins
     volumes:
       - /jenkins:/var/jenkins_home
+      - {{ docker_bin.stdout }}:/usr/bin/docker
       - jenkins-docker-certs:/certs/client:ro
     environment:
       - DOCKER_HOST=tcp://docker:2376

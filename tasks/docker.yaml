@@ -67,6 +67,10 @@
     set_fact:
       taiga_secret: "{{ taiga_secret_base.content | b64decode }}"
 
+- name: Find the docker binary
+  ansible.builtin.command: which docker
+  register: docker_bin
+
 - name: Copy Docker compose
   ansible.builtin.template:
     src: ../docker-compose.yml.j2
