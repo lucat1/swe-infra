@@ -327,7 +327,7 @@ services:
       - runner
     environment:
       - CI_SERVER_URL=https://git.{{ domain }}/
-      - REGISTRATION_TOKEN=A3HCQdvAkhJmPASdh-ZB
+      - REGISTRATION_TOKEN=GITLAB_RUNNER_TOKEN
     command:
       - register
       - --non-interactive
