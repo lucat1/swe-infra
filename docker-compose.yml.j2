@@ -319,6 +319,8 @@ services:
       - DOCKER_TLS_VERIFY=1
     depends_on:
       - docker
+    networks:
+      - traefik
 
   homepage:
     image: flashspys/nginx-static
