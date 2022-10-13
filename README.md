@@ -30,9 +30,11 @@ Disable user registration or set the `Allowed domains for sign-ups`: [GitLab Doc
 
 Disable Service Ping: [GitLab Docs](https://docs.gitlab.com/ee/user/admin_area/settings/usage_statistics.html#enable-or-disable-usage-statistics)
 
-To setup the GitLab docker change the `/swe/docker-compose.yml` file on the remote
-and replace the `GITLAB_RUNNER_TOKEN` variable with one obtained from `https://git.{{ domain }}/admin/runners`.
-The run `docker-compose up -d` to let the Runner be registered.
+Obtain the registration token from `https://git.{{ domain }}/admin/runners` and on the remote machine execute:
+
+```
+docker run --rm -it -v /swe/runner_config.toml:/etc/gitlab-runner/config.toml -e CI_SERVER_URL=https://git.{{ domain }}/ -e REGISTRATION_TOKEN={{ gitlab_runner_token }} gitlab/gitlab-runner:latest register --non-interactive --locked=false --name=runner0 --executor=docker --docker-image=docker:dind --docker-volumes=/var/run/docker.sock:/var/run/docker.sock
+```
 
 ## Jenkins
 
@@ -88,7 +90,7 @@ Subdomain: `taiga`
 
 Create a new GitLab Application:
 
-- Redirect URI: `https://taiga.<domain>/login`
+- Redirect URI: `https://taiga.{{ domain }}/login`
 - Scopes: read_user
 
-Change the variables in the `hosts` file and execute the Ansible playbook.
+Change the `taiga_gitlab_client_id` and `taiga_gitlab_client_secret` variables in the `hosts` file and execute the Ansible playbook.

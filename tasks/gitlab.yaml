@@ -5,6 +5,7 @@
     owner: 998
     group: 998
     mode: '0770'
+
 - name: Create the '/gitlab/log' directory
   ansible.builtin.file:
     path: /gitlab/log
@@ -12,6 +13,7 @@
     owner: 998
     group: 998
     mode: '0770'
+
 - name: Create the '/gitlab/data' directory
   ansible.builtin.file:
     path: /gitlab/data
@@ -19,10 +21,17 @@
     owner: 999
     group: 999
     mode: '0770'
-- name: Create the 'config.toml' for the GitLab runner
+
+- name: Check if runner_config.toml exists
+  ansible.builtin.stat:
+    path: /swe/runner_config.toml
+  register: runner_config_file
+
+- name: Create the 'runner_config.toml' for the GitLab runner
   ansible.builtin.template:
-    src: ../config.toml
-    dest: /swe/config.toml
+    src: ../runner_config.toml
+    dest: /swe/runner_config.toml
     owner: root
     group: root
     mode: '0770'
+  when: not runner_config_file.stat.exists
