@@ -60,9 +60,15 @@ Subdomain: `qube`
 
 Log in to your SonarQube instance: username `admin`, password `admin` (you will ask to change it on first login).
 
-Set the Administration > General > Server base URL
+Set the Administration > Configuration > General Settings > General > Server base URL
 
-Enable SonarQube SSO with GitLab and set the global settings: [SonarQube Docs](https://docs.sonarqube.org/latest/analysis/gitlab-integration/)
+Enable SonarQube SSO with GitLab, enable group synchronization and set the global settings: [SonarQube Docs](https://docs.sonarqube.org/latest/analysis/gitlab-integration/)
+
+Administration > Security > Permission Templates, edit the default template, select all the permissions for `Creators`.
+
+Administration > Security > Groups, create groups for all the GitLab ones, name the SonarQube groups with the path of the GitLab group (not include the GitLab domain).
+
+When a user creates a project, (s)he should set it as Private in Project Settings > Permissions and give all the permissions to the correspond group.
 
 ## Mattermost
 
