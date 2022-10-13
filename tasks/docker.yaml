@@ -87,7 +87,6 @@
 - name: Run 'docker-compose up'
   community.docker.docker_compose:
     project_src: /swe/
-    build: false
     remove_orphans: true
   register: docker_compose_output
 

@@ -89,6 +89,8 @@ services:
       - MM_SQLSETTINGS_DATASOURCE=postgres://mmuser:{{ mattermost_password }}@postgres:5432/mattermost?sslmode=disable
       - MM_BLEVESETTINGS_INDEXDIR=/mattermost/bleve-indexes
       - MM_SERVICESETTINGS_SITEURL=https://chat.{{ domain }}
+    ports:
+      - "8443:8443/udp"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mattermost.rule=Host(`chat.{{ domain }}`)"

@@ -84,6 +84,8 @@ To share the root account from GitLab to Mattermost:
 
 To enable push notifications: System Console > Environment > Push Notification Server > Enable Push Notifications: Use TPNS connection to send notifications to iOS and Android apps
 
+To enable calls: System Console > Plugins > Calls > Enable on all channels: true
+
 ## Taiga
 
 Subdomain: `taiga`

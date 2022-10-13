@@ -18,11 +18,14 @@
     - 80
     - 443
 
-- name: Allow UDP for 443
+- name: Allow UDP for 443 and 8443
   community.general.ufw:
     rule: allow
-    port: 443
+    port: '{{ item }}'
     proto: udp
+  loop:
+    - 443
+    - 8443
 
 - name: Allow all connections to the host from Docker
   community.general.ufw:
