@@ -1,6 +1,6 @@
 #!/bin/bash -x
 cd /swe
-docker-compose down
+docker-compose down --remove-orphans
 su postgres -c "cd /postgres; pg_dumpall > db.out"
 for dir in gitlab mattermost jenkins taiga sonarqube postgres swe
 do

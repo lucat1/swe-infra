@@ -9,6 +9,7 @@
   ansible.builtin.cron:
     name: "Daily backup"
     hour: "4"
+    minute: "0"
     user: "root"
     job: "/swe/backup.sh"
 - name: Copy restore script
