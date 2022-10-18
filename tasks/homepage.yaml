@@ -6,7 +6,7 @@
     group: root
     mode: '0775'
 
-- name: Copy backup script
+- name: Copy the homepage
   ansible.builtin.template:
     src: index.html.j2
     dest: /homepage/index.html
