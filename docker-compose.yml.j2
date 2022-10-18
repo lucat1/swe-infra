@@ -141,27 +141,27 @@ services:
     networks:
       - traefik
 
-  jenkins:
-    image: jenkins/jenkins:lts
-    container_name: jenkins
-    volumes:
-      - /jenkins:/var/jenkins_home
-      - {{ docker_bin.stdout }}:/usr/bin/docker
-      - docker-certs:/certs/client:ro
-    environment:
-      - DOCKER_HOST=tcp://docker:2376
-      - DOCKER_CERT_PATH=/certs/client
-      - DOCKER_TLS_VERIFY=1
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.jenkins.rule=Host(`ci.{{ domain }}`)"
-      - "traefik.http.routers.jenkins.entrypoints=web-secure"
-      - "traefik.http.routers.jenkins.tls.certresolver=default"
-      - "traefik.http.services.jenkins.loadbalancer.server.port=8080"
-      - "traefik.http.middlewares.jenkins_compress.compress=true"
-      - "traefik.http.routers.jenkins.middlewares=jenkins_compress"
-    networks:
-      - traefik
+#  jenkins:
+#    image: jenkins/jenkins:lts
+#    container_name: jenkins
+#    volumes:
+#      - /jenkins:/var/jenkins_home
+#      - {{ docker_bin.stdout }}:/usr/bin/docker
+#      - docker-certs:/certs/client:ro
+#    environment:
+#      - DOCKER_HOST=tcp://docker:2376
+#      - DOCKER_CERT_PATH=/certs/client
+#      - DOCKER_TLS_VERIFY=1
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.jenkins.rule=Host(`ci.{{ domain }}`)"
+#      - "traefik.http.routers.jenkins.entrypoints=web-secure"
+#      - "traefik.http.routers.jenkins.tls.certresolver=default"
+#      - "traefik.http.services.jenkins.loadbalancer.server.port=8080"
+#      - "traefik.http.middlewares.jenkins_compress.compress=true"
+#      - "traefik.http.routers.jenkins.middlewares=jenkins_compress"
+#    networks:
+#      - traefik
 
   taiga_back:
     image: taigaio/taiga-back:latest

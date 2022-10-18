@@ -1,6 +1,6 @@
 # swe-infra
 
-Setup GitLab, Jenkins, SonarQube, Mattermost and Taiga.
+Setup GitLab, SonarQube, Mattermost, Taiga (and optionally Jenkins).
 
 You need root access to a server with Debian via SSH.
 
@@ -37,6 +37,9 @@ docker run --rm -it -v /swe/runner_config.toml:/etc/gitlab-runner/config.toml -e
 ```
 
 ## Jenkins
+
+By default it's disabled, because GitLab Runner works better.
+If you want to enable it, uncomment the Jenkins part in the Docker compose, Ansible playbook, homepage, backup and restore scripts.
 
 Subdomain: `ci`
 

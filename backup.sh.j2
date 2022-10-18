@@ -2,7 +2,7 @@
 cd /swe
 docker-compose down --remove-orphans
 su postgres -c "cd /postgres; pg_dumpall > db.out"
-for dir in gitlab mattermost jenkins taiga sonarqube postgres swe
+for dir in gitlab mattermost taiga sonarqube postgres swe # jenkins
 do
 	rsync -avzhp --numeric-ids /$dir -e "ssh -p {{ backup_port }}" root@{{ backup_host }}:/backup/
 done
