@@ -224,6 +224,7 @@ services:
   taiga_async_rabbitmq:
     image: rabbitmq:3.8-management-alpine
     container_name: taiga_async_rabbitmq
+    hostname: taiga_async_rabbitmq
     restart: unless-stopped
     volumes:
       - taiga-async:/var/lib/rabbitmq
@@ -264,6 +265,7 @@ services:
   taiga_events_rabbitmq:
     image: rabbitmq:3.8-management-alpine
     container_name: taiga_events_rabbitmq
+    hostname: taiga_events_rabbitmq
     restart: unless-stopped
     volumes:
       - taiga-events:/var/lib/rabbitmq
