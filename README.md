@@ -6,11 +6,11 @@ You need root access to a server with Debian via SSH.
 
 Clone this repository and create a `hosts` file (you can find an example on `hosts.example`, not all variables can be set immediately) and execute the Ansible playbook: `ansible-playbook install.yaml`.
 
-Setup your domain DNS for subdomains: `git`, `ci`, `qube`, `chat`, `taiga`.
+Setup your domain DNS for subdomains: `git`, `registry`, `ci`, `qube`, `chat`, `taiga`.
 
 ## GitLab
 
-Subdomain: `git`
+Subdomain: `git`, `registry`
 
 Log in to the server with SSH.
 

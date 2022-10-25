@@ -45,10 +45,16 @@ services:
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'https://git.{{ domain }}'
+        registry_external_url 'https://registry.{{ domain }}'
         nginx['listen_https'] = false
         nginx['listen_port'] = 80
-        nginx['redirect_http_to_https'] = false
         letsencrypt['enable'] = false
+        nginx['redirect_http_to_https'] = false
+        gitlab_rails['registry_enabled'] = true
+        registry['enable'] = true
+        registry_nginx['enable'] = false
+        registry['registry_http_addr'] = '0.0.0.0:5000'
+
     restart: unless-stopped
     volumes:
       - /gitlab/config:/etc/gitlab
@@ -62,9 +68,16 @@ services:
       - "traefik.http.routers.gitlab.rule=Host(`git.{{ domain }}`)"
       - "traefik.http.routers.gitlab.entrypoints=web-secure"
       - "traefik.http.routers.gitlab.tls.certresolver=default"
+      - "traefik.http.routers.gitlab.service=gitlab"
       - "traefik.http.services.gitlab.loadbalancer.server.port=80"
       - "traefik.http.middlewares.gitlab_compress.compress=true"
       - "traefik.http.routers.gitlab.middlewares=gitlab_compress"
+
+      - "traefik.http.routers.registry.rule=Host(`registry.{{ domain }}`)"
+      - "traefik.http.routers.registry.entrypoints=web-secure"
+      - "traefik.http.routers.registry.service=registry"
+      - "traefik.http.routers.registry.tls.certresolver=default"
+      - "traefik.http.services.gitlab.loadbalancer.server.port=5000"
     networks:
       - traefik     
 
