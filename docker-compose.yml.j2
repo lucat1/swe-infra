@@ -2,6 +2,10 @@ version: "3.3"
 
 networks:
   traefik:
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.10.0.0/16"
 
 volumes:
   docker-certs:
@@ -77,9 +81,9 @@ services:
       - "traefik.http.routers.registry.entrypoints=web-secure"
       - "traefik.http.routers.registry.service=gitlab"
       - "traefik.http.routers.registry.tls.certresolver=default"
-      - "traefik.http.services.gitlab.loadbalancer.server.port=5000"
+      - "traefik.http.services.registry.loadbalancer.server.port=5000"
     networks:
-      - traefik     
+      - traefik
 
   mattermost:
     image: mattermost/mattermost-team-edition

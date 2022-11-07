@@ -30,8 +30,7 @@
 - name: Allow all connections to the host from Docker
   community.general.ufw:
     rule: allow
-    from_ip: 172.16.0.0/12
-    to_ip: 172.16.0.0/12
+    from_ip: 10.10.0.0/16
 
 - name: Enable ufw
   community.general.ufw:
