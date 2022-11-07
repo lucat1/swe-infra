@@ -75,6 +75,7 @@ services:
 
       - "traefik.http.routers.registry.rule=Host(`registry.{{ domain }}`)"
       - "traefik.http.routers.registry.entrypoints=web-secure"
+      - "traefik.http.routers.registry.service=gitlab"
       - "traefik.http.routers.registry.tls.certresolver=default"
       - "traefik.http.services.gitlab.loadbalancer.server.port=5000"
     networks:
