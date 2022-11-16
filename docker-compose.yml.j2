@@ -8,7 +8,6 @@ networks:
         - subnet: "10.10.0.0/16"
 
 volumes:
-  docker-certs:
   taiga-static:
   taiga-async:
   taiga-events:
@@ -140,21 +139,6 @@ services:
       - "traefik.http.services.sonarqube.loadbalancer.server.port=9000"
       - "traefik.http.middlewares.sonarqube_compress.compress=true"
       - "traefik.http.routers.sonarqube.middlewares=sonarqube_compress"
-    networks:
-      - traefik
-
-
-  docker:
-    image: docker:dind
-    container_name: docker
-    restart: unless-stopped
-    privileged: true
-    volumes:
-      - docker-certs:/certs/client
-    environment:
-      - DOCKER_TLS_CERTDIR=/certs
-    command:
-      - --storage-driver=overlay2
     networks:
       - traefik
 
@@ -332,14 +316,8 @@ services:
     restart: always
     image: gitlab/gitlab-runner:alpine
     volumes:
-      - docker-certs:/certs/client:ro
-      - ./runner_config.toml:/etc/gitlab-runner/config.toml
-    environment:
-      - DOCKER_HOST=tcp://docker:2376
-      - DOCKER_CERT_PATH=/certs/client
-      - DOCKER_TLS_VERIFY=1
-    depends_on:
-      - docker
+      - /ramfs:/ramfs
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       - traefik
 

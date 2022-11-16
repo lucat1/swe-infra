@@ -1,3 +1,19 @@
+- name: Create the '/ramfs' directory
+  ansible.builtin.file:
+    path: /ramfs
+    state: directory
+    owner: root
+    group: root
+    mode: '0770'
+
+- name: Mount a 16G tmpfs to '/ramfs'
+  mount:
+    name: '/ramfs'
+    src: tmpfs
+    fstype: tmpfs
+    opts: "nodev,nosuid,size={{ gitlab_runner_ramfs_size }}"
+    state: mounted
+
 - name: Create the '/gitlab/config' directory
   ansible.builtin.file:
     path: /gitlab/config
@@ -22,11 +38,6 @@
     group: 999
     mode: '0770'
 
-- name: Check if runner_config.toml exists
-  ansible.builtin.stat:
-    path: /swe/runner_config.toml
-  register: runner_config_file
-
 - name: Create the 'runner_config.toml' for the GitLab runner
   ansible.builtin.template:
     src: ../runner_config.toml
@@ -34,4 +45,3 @@
     owner: root
     group: root
     mode: '0770'
-  when: not runner_config_file.stat.exists
